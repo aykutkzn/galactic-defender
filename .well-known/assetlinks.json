@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.aykutkzn.galacticdefender",
+        "sha256_cert_fingerprints": ["49:22:E9:96:3C:34:E5:70:94:E4:4B:0E:E3:5C:08:80:D3:58:33:B9:24:45:33:BE:44:BE:DA:BC:47:10:4D:8B"]
+      }
+    }]
