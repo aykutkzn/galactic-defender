@@ -1,7 +1,8 @@
 {
   "name": "Galactic Defender",
   "short_name": "GalacticDef",
-  "start_url": "/",
+  "description": "Retro pixel art uzay nişancı oyunu",
+  "start_url": "/galactic-defender/",
   "display": "fullscreen",
   "background_color": "#000000",
   "theme_color": "#00ffff",
