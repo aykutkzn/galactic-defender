@@ -623,7 +623,7 @@ function drawWinScreen(){
   if(winTimer%3===0)winParts.push({x:Math.random()*cw,y:-10,vx:(Math.random()-.5)*2,vy:Math.random()*2+1,col:['#ff0','#0ff','#f0f','#0f0','#f55','#f90','#fff'][Math.floor(Math.random()*7)],life:180+Math.random()*60,r:PX()*(Math.random()*1.5+.5),rot:Math.random()*Math.PI*2,rotv:(Math.random()-.5)*.12});
   for(var i=winParts.length-1;i>=0;i--){var wp=winParts[i];wp.x+=wp.vx;wp.y+=wp.vy;wp.vy+=.03;wp.rot+=wp.rotv;wp.life--;if(wp.life<=0||wp.y>ch+20){winParts.splice(i,1);continue;}X.globalAlpha=Math.min(1,wp.life/40);X.fillStyle=wp.col;X.save();X.translate(wp.x,wp.y);X.rotate(wp.rot);X.fillRect(-wp.r,-wp.r,wp.r*2,wp.r*2);X.restore();}X.globalAlpha=1;
   // lines sliding in
-  var yBase=ch*.06,lineH=ch*0.072,speed=1.4,delay=40;
+  var yBase=ch*.10,lineH=ch*0.095,speed=1.4,delay=40;
   X.textAlign='center';
   for(var i=0;i<WIN_LINES.length;i++){
     var ln=WIN_LINES[i];
