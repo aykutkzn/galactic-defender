@@ -192,9 +192,9 @@ var ETYPES={
   D:{col:'#ff0',hp:2,pts:18,brate:90, bspd:1.2,mv:'dive'},
 };
 var BOSSES=[
-  {name:'WARDEN', col:'#f80',hp:25,design:'dragon', pattern:'fan'},
-  {name:'CRUSHER',col:'#f0f',hp:40,design:'spider', pattern:'web'},
-  {name:'NEMESIS',col:'#ff0',hp:60,design:'vortex', pattern:'chaos'},
+  {name:'WARDEN', col:'#f80',hp:25,design:'dragon', pattern:'spiral'},
+  {name:'CRUSHER',col:'#f0f',hp:40,design:'spider', pattern:'wave'},
+  {name:'NEMESIS',col:'#ff0',hp:38,design:'vortex', pattern:'cross'},
 ];
 function getBoss(w){
   var idx=w<=5?0:w<=10?1:2;
@@ -443,7 +443,7 @@ function drawBossIntroScreen(){
     if(prog>0.60){
       var ial=Math.min(1,(prog-0.60)*2.5);
       X.globalAlpha=ial;X.textAlign='center';
-      var pd={fan:'[ YELPAZEN ATİŞİ ]',web:'[ ÖRÜMCEK AĞI ]',chaos:'[ TAM KAOS ]'};
+      var pd={spiral:'[ SPİRAL ATİŞİ ]',wave:'[ DALGA ATİŞİ ]',cross:'[ ÇAPRAZ YILDIZ ]'};
       X.fillStyle='#888';X.font=Math.floor(cw/34)+'px Courier New';
       X.fillText(pd[introCfg.pattern]||'',cw/2,ch*0.54);
       var hbw=Math.floor(cw*0.56),hbh=px*3,hbx=cw/2-hbw/2,hby=ch*0.60;
@@ -537,22 +537,58 @@ function drawBossIntroScreen(){
 function bossShoot(){
   if(!boss||boss.entering||boss.st>0){if(boss&&boss.st>0)boss.st--;return;}
   var ph=boss.hp/boss.mhp,ang=Math.atan2(P.y-boss.y,P.x-boss.x);
-  if(boss.pattern==='fan'){
-    var cnt=ph>.66?3:ph>.33?3:5,spd=ph>.66?1.6:1.9;
-    for(var i=0;i<cnt;i++){var a=ang+(i-(cnt-1)/2)*.3;eBullets.push({x:boss.x,y:boss.y+boss.h/2,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,r:true});}
-    boss.st=ph>.66?65:ph>.33?50:38;
-  }else if(boss.pattern==='web'){
-    boss.webTimer=(boss.webTimer||0)+1;
-    if(boss.webTimer%80<40){for(var i=0;i<4;i++){var a=i*(Math.PI/2)+boss.webTimer*.015;var vx=Math.cos(a)*1.9,vy=Math.sin(a)*1.9;if(vy>-.2)eBullets.push({x:boss.x,y:boss.y,vx:vx,vy:vy,r:true});}}
-    else{eBullets.push({x:boss.x,y:boss.y+boss.h/2,vx:Math.cos(ang)*2.1,vy:Math.sin(ang)*2.1,r:true});}
-    boss.st=ph>.66?55:ph>.33?40:28;
+  boss.sc=(boss.sc||0)+1;
+  var bc=boss.col; // boss rengi mermilere geçiyor
+
+  if(boss.pattern==='spiral'){
+    boss.spiralAng=(boss.spiralAng||ang);
+    boss.spiralAng+=ph>.66?.18:ph>.33?.25:.32;
+    var spd=ph>.66?1.5:ph>.33?1.8:2.1;
+    var arms=ph>.66?2:ph>.33?3:4;
+    for(var i=0;i<arms;i++){
+      var a=boss.spiralAng+i*(Math.PI*2/arms);
+      if(Math.sin(a)>-0.1)
+        eBullets.push({x:boss.x,y:boss.y+boss.h/2,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,r:true,bt:'spiral',bc:bc,rot:a});
+    }
+    if(boss.sc%8===0){
+      eBullets.push({x:boss.x,y:boss.y+boss.h/2,vx:Math.cos(ang)*2.0,vy:Math.sin(ang)*2.0,r:true,bt:'spiral_aimed',bc:bc,rot:ang});
+    }
+    boss.st=ph>.66?55:ph>.33?42:30;
+
+  }else if(boss.pattern==='wave'){
+    boss.waveT=(boss.waveT||0)+1;
+    var wSpd=ph>.66?1.6:ph>.33?1.9:2.2;
+    var sweep=Math.sin(boss.waveT*0.06)*0.5;
+    for(var i=-1;i<=1;i++){
+      var a=Math.PI/2+sweep+i*0.22;
+      eBullets.push({x:boss.x,y:boss.y+boss.h/2,vx:Math.cos(a)*wSpd,vy:Math.sin(a)*wSpd,r:true,bt:'wave',bc:bc});
+    }
+    if(boss.sc%5===0){
+      var off=0.2;
+      eBullets.push({x:boss.x,y:boss.y+boss.h/2,vx:Math.cos(ang-off)*wSpd,vy:Math.sin(ang-off)*wSpd,r:true,bt:'wave_aimed',bc:bc});
+      eBullets.push({x:boss.x,y:boss.y+boss.h/2,vx:Math.cos(ang+off)*wSpd,vy:Math.sin(ang+off)*wSpd,r:true,bt:'wave_aimed',bc:bc});
+    }
+    boss.st=ph>.66?58:ph>.33?44:32;
+
   }else{
-    for(var i=-1;i<=1;i++)eBullets.push({x:boss.x,y:boss.y+boss.h/2,vx:Math.cos(ang+i*.28)*1.9,vy:Math.sin(ang+i*.28)*1.9,r:true});
-    boss.sa=(boss.sa||0)+.22;
-    for(var i=0;i<3;i++){var a=boss.sa+i*(Math.PI*2/3);var vx=Math.cos(a)*2.1,vy=Math.sin(a)*2.1;if(vy>-.1)eBullets.push({x:boss.x,y:boss.y,vx:vx,vy:vy,r:true});}
-    if(ph<.55){boss.lc++;if(boss.lc>=120){boss.la=true;boss.lx=P.x;boss.lc=0;boss.lt=28;}}
-    boss.st=ph>.66?32:ph>.33?22:15;
+    var cSpd=ph>.66?1.5:ph>.33?1.8:2.0;
+    var diags=[Math.PI/4,Math.PI*3/4,Math.PI*5/4,Math.PI*7/4];
+    for(var i=0;i<diags.length;i++){
+      var a=diags[i]+(boss.sc*.04);
+      eBullets.push({x:boss.x,y:boss.y,vx:Math.cos(a)*cSpd,vy:Math.sin(a)*cSpd,r:true,bt:'cross',bc:bc,rot:a});
+    }
+    eBullets.push({x:boss.x,y:boss.y+boss.h/2,vx:Math.cos(ang)*cSpd,vy:Math.sin(ang)*cSpd,r:true,bt:'cross_aimed',bc:bc});
+    if(ph<.33){
+      boss.sa=(boss.sa||0)+.18;
+      for(var i=0;i<3;i++){
+        var a2=boss.sa+i*(Math.PI*2/3);
+        if(Math.sin(a2)>-.15)
+          eBullets.push({x:boss.x,y:boss.y,vx:Math.cos(a2)*1.6,vy:Math.sin(a2)*1.6,r:true,bt:'cross',bc:bc,rot:a2});
+      }
+    }
+    boss.st=ph>.66?48:ph>.33?35:24;
   }
+
   if(ph<.66&&boss.ph===1){boss.ph=2;ft(boss.x,boss.y-28,'PHASE 2!',boss.col);ring(boss.x,boss.y,boss.col);sBossPhase();}
   if(ph<.33&&boss.ph===2){boss.ph=3;ft(boss.x,boss.y-28,'PHASE 3!','#f55');ring(boss.x,boss.y,'#f55');sBossPhase();}
 }
@@ -892,11 +928,74 @@ function draw(){
   X.shadowBlur=0;
 
   // enemy bullets
-  X.shadowBlur=3;X.shadowColor='#f55';
-  for(var i=0;i<eBullets.length;i++){var b=eBullets[i];X.fillStyle='#f55';
-    if(b.r)X.fillRect(Math.floor(b.x-px),Math.floor(b.y-px),px*2,px*2);
-    else X.fillRect(Math.floor(b.x-px/2),Math.floor(b.y-px),px,px*3);}
-  X.shadowBlur=0;
+  for(var i=0;i<eBullets.length;i++){
+    var b=eBullets[i];
+    var bx2=Math.floor(b.x),by2=Math.floor(b.y);
+    if(b.bt){
+      // ── BOSS BULLETS: her pattern'in kendi görünümü ──
+      var bc2=b.bc||'#f55';
+      X.save();
+      X.translate(bx2,by2);
+      if(b.bt==='spiral'||b.bt==='spiral_aimed'){
+        // WARDEN: turuncu dönen üçgen
+        var angle2=Math.atan2(b.vy,b.vx);
+        X.rotate(angle2+Math.PI/2);
+        X.fillStyle=b.bt==='spiral_aimed'?'#fff':bc2;
+        X.shadowBlur=8;X.shadowColor=bc2;
+        X.beginPath();
+        X.moveTo(0,-px*2.5);
+        X.lineTo(px*1.5,px*1.5);
+        X.lineTo(-px*1.5,px*1.5);
+        X.closePath();X.fill();
+        // iç parlama
+        X.fillStyle='rgba(255,255,255,0.5)';
+        X.beginPath();X.arc(0,0,px*0.6,0,Math.PI*2);X.fill();
+        X.shadowBlur=0;
+      }else if(b.bt==='wave'||b.bt==='wave_aimed'){
+        // CRUSHER: mor damla şekli
+        X.fillStyle=b.bt==='wave_aimed'?'#fff':bc2;
+        X.shadowBlur=9;X.shadowColor=bc2;
+        X.beginPath();
+        X.arc(0,0,px*1.4,0,Math.PI*2);X.fill();
+        // dış halka
+        X.strokeStyle=bc2;X.lineWidth=px*0.5;
+        X.globalAlpha=0.5;
+        X.beginPath();X.arc(0,0,px*2.2,0,Math.PI*2);X.stroke();
+        X.globalAlpha=1;
+        // merkez nokta
+        X.fillStyle='#fff';
+        X.beginPath();X.arc(0,0,px*0.5,0,Math.PI*2);X.fill();
+        X.shadowBlur=0;
+      }else if(b.bt==='cross'||b.bt==='cross_aimed'){
+        // NEMESIS: sarı dönen artı/yıldız
+        var ang3=Math.atan2(b.vy,b.vx);
+        X.rotate(ang3+(Date.now()*0.008%Math.PI)); // sürekli döner
+        X.fillStyle=b.bt==='cross_aimed'?'#fff':bc2;
+        X.shadowBlur=10;X.shadowColor=bc2;
+        // artı şekli
+        X.fillRect(-px*0.7,-px*2.5,px*1.4,px*5);
+        X.fillRect(-px*2.5,-px*0.7,px*5,px*1.4);
+        // köşe noktaları
+        X.fillStyle='rgba(255,255,255,0.7)';
+        for(var k=0;k<4;k++){
+          var ka=k*(Math.PI/2);
+          X.beginPath();X.arc(Math.cos(ka)*px*1.8,Math.sin(ka)*px*1.8,px*0.5,0,Math.PI*2);X.fill();
+        }
+        X.shadowBlur=0;
+      }
+      X.restore();
+    }else if(b.r){
+      // düşman (normal) mermisi — kırmızı kare
+      X.fillStyle='#f55';X.shadowBlur=3;X.shadowColor='#f55';
+      X.fillRect(bx2-px,by2-px,px*2,px*2);
+      X.shadowBlur=0;
+    }else{
+      // düşman uzun mermisi
+      X.fillStyle='#f55';X.shadowBlur=3;X.shadowColor='#f55';
+      X.fillRect(bx2-px/2,by2-px,px,px*3);
+      X.shadowBlur=0;
+    }
+  }
 
   // particles
   for(var i=0;i<parts.length;i++){var p=parts[i];X.globalAlpha=p.life/46;X.fillStyle=p.col;X.fillRect(Math.floor(p.x-p.r/2),Math.floor(p.y-p.r/2),Math.ceil(p.r),Math.ceil(p.r));}
