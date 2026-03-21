@@ -3,6 +3,6 @@
   "target": {
     "namespace": "android_app",
     "package_name": "com.aykutkzn.galacticdefender",
-    "sha256_cert_fingerprints": ["F6:C5:1D:3A:8F:EA:E1:57:1A:45:69:50:6A:AC:ED:B8:67:05:5A:98:48:3F:F2:45:FC:76:AE:90:96:25:B3:5D"]
+    "sha256_cert_fingerprints": ["27:C8:18:24:76:2F:D1:56:18:3E:26:CC:6E:96:EC:73:4E:80:00:BE:5A:F9:F0:3D:35:15:F6:36:9D:88:CD:4F"]
   }
 }]
