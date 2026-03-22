@@ -1135,30 +1135,33 @@ function draw(){
     y+=bh+lh*0.6;
     // Gemi seçimi — küçük, müzik butonunun altında
     X.fillStyle='#888';X.font=Math.floor(cw/38)+'px Courier New';
-    X.fillText('── GEMİ SEÇ ──',cw/2,y);y+=lh*1.2;
+    X.fillText('── GEMİ SEÇ ──',cw/2,y);y+=lh*1.0;
     var shipCols=['red','blue','green'];
-    var shipLabels=['K','M','Y'];
+    var shipLabels=['KIRMIZI','MAVİ','YEŞİL'];
     var shipColors2=['#f55','#4af','#4c8'];
     var sp=cw/4;
-    var shipScale=0.5;
+    var shipScale=0.55;
+    var p0=PX()*shipScale; // gemi piksel birimi
+    var gW=p0*9,gH=p0*10; // gemi genişlik/yükseklik (±4p * 2 + biraz pay)
+    var gPad=4;
     for(var i=0;i<3;i++){
       var sx=sp*(i+1);
       var sc=shipCols[i];
       var sel=shipColor===sc;
+      var rx=sx-gW/2-gPad, ry=y-gH*0.55-gPad;
+      var rw=gW+gPad*2, rh=gH+gPad*2;
       if(sel){
         X.shadowBlur=10;X.shadowColor=shipColors2[i];
         X.strokeStyle=shipColors2[i];X.lineWidth=1.5;
-        X.strokeRect(sx-18,y-22,36,38);X.shadowBlur=0;
+        X.strokeRect(rx,ry,rw,rh);X.shadowBlur=0;
+        X.fillStyle=shipColors2[i]+'22';X.fillRect(rx,ry,rw,rh);
       }else{
         X.strokeStyle='rgba(255,255,255,0.12)';X.lineWidth=1;
-        X.strokeRect(sx-18,y-22,36,38);
+        X.strokeRect(rx,ry,rw,rh);
       }
       X.save();X.translate(sx,y);
       drawShipAt(0,0,sc,shipScale);
       X.restore();
-      X.fillStyle=sel?shipColors2[i]:'#555';
-      X.font=(sel?'bold ':'')+Math.floor(cw/44)+'px Courier New';
-      X.fillText(shipLabels[i],sx,y+20);
     }
     drawCRT();return;
   }
@@ -1212,8 +1215,11 @@ function draw(){
     X.shadowBlur=blink2?8:0;X.shadowColor='#0ff';
     X.fillText('[ 🔥 TEKRAR ]',cw/2,ch*0.85);
     X.shadowBlur=0;
-    X.fillStyle='#555';X.font=Math.floor(cw/32)+'px Courier New';
+    var blink3=Math.floor(Date.now()/500+1)%2===0;
+    X.fillStyle=blink3?'#f0f':'#446';X.font='bold '+Math.floor(cw/28)+'px Courier New';
+    X.shadowBlur=blink3?6:0;X.shadowColor='#f0f';
     X.fillText('[ ANA MENÜ ]',cw/2,ch*0.93);
+    X.shadowBlur=0;
     drawCRT();return;
   }
   if(state==='win'){drawWinScreen();return;}
