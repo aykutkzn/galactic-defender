@@ -186,7 +186,7 @@ FB.addEventListener('touchend',function(e){e.preventDefault();e.stopPropagation(
 FB.addEventListener('touchcancel',function(e){e.preventDefault();K.f=false;});
 FB.addEventListener('mousedown',function(e){e.preventDefault();K.f=true;go();});
 FB.addEventListener('mouseup',function(){K.f=false;});
-C.addEventListener('touchstart',function(e){var t=e.changedTouches[0];handleCanvasTap(t.clientX,t.clientY);},{passive:true});
+C.addEventListener('touchstart',function(e){e.preventDefault();var t=e.changedTouches[0];handleCanvasTap(t.clientX,t.clientY);},{passive:false});
 C.addEventListener('mousedown',function(e){handleCanvasTap(e.clientX,e.clientY);});
 function handleCanvasTap(cx,cy){
   var r=C.getBoundingClientRect(),x=(cx-r.left)*(W()/r.width),y=(cy-r.top)*(H()/r.height);
@@ -462,8 +462,8 @@ function spawnBoss(){
 }
 
 // ── SHIP COLOR + HIGH SCORE ───────────────────────────────────────
-var shipColor='blue'; // 'blue' | 'red' | 'green'
-var highScore=0;
+var shipColor='blue';
+var highScore=parseInt(localStorage.getItem('gd_hs')||'0');
 var SHIP_COLS={
   blue: {main:'#4af',bright:'#bef',wing:'#38a',eng:'#0ff',engGlow:'rgba(0,200,255,.4)'},
   red:  {main:'#f54',bright:'#fbb',wing:'#a33',eng:'#f88',engGlow:'rgba(255,80,50,.4)'},
@@ -1095,7 +1095,7 @@ function update(){
     if(phTimer===60)warpT=13;
     if(phTimer<=0){
       wave++;
-      if(wave>MAX_WAVE){state='win';winTimer=0;winParts=[];if(score>highScore)highScore=score;sWin();return;}
+      if(wave>MAX_WAVE){state='win';winTimer=0;winParts=[];if(score>highScore)highScore=score;localStorage.setItem('gd_hs',highScore);sWin();return;}
       if(lives<3){lives++;}
       bullets=[];eBullets=[];xTimer=0;resetP();
       waveFlash=150;phase='waveIn';phTimer=170; // flash + biraz bekleme
@@ -1115,7 +1115,7 @@ function update(){
       if(omegaScene===1){
         omegaT=240;phase='omegaScene';
       }else if(omegaScene===3){
-        if(score>highScore)highScore=score;
+        if(score>highScore)highScore=score;localStorage.setItem('gd_hs',highScore);
         state='win';winTimer=0;winParts=[];sWin();
       }else{
         phase='clearing';phTimer=180;
@@ -1176,7 +1176,7 @@ function update(){
         else e.divePhase=0;}
       e.st--;
       if(e.st<=0){eBullets.push({x:e.x,y:e.y+e.h/2,vx:(Math.random()-.5)*.6,vy:e.bspd,r:true,et:e.type});e.st=Math.max(50,e.brate)+Math.random()*20;}
-      if(e.y>H()-20){lives--;P.inv=120;sHit();burst(P.x,P.y,'#f55',8);enemies.splice(i,1);if(lives<=0){if(score>highScore)highScore=score;state='dead';}return;}
+      if(e.y>H()-20){lives--;P.inv=120;sHit();burst(P.x,P.y,'#f55',8);enemies.splice(i,1);if(lives<=0){if(score>highScore)highScore=score;localStorage.setItem('gd_hs',highScore);state='dead';}return;}
     }
   }
   if(boss&&boss.entering){boss.y+=1.5;if(boss.y>=82)boss.entering=false;return;}
@@ -1199,7 +1199,7 @@ function update(){
   if(P.inv<=0){for(var i=eBullets.length-1;i>=0;i--){var b=eBullets[i];
     var hit=b.r?Math.hypot(b.x-P.x,b.y-P.y)<P.w/2+3:Math.abs(b.x-P.x)<P.w/2&&Math.abs(b.y-P.y)<P.h/2;
     if(hit){eBullets.splice(i,1);if(P.shld>0){P.shld=0;burst(P.x,P.y,'#0ff',8);}
-      else{lives--;P.inv=120;sHit();burst(P.x,P.y,'#4af',10);if(lives<=0){if(score>highScore)highScore=score;state='dead';}}break;}}}
+      else{lives--;P.inv=120;sHit();burst(P.x,P.y,'#4af',10);if(lives<=0){if(score>highScore)highScore=score;localStorage.setItem('gd_hs',highScore);state='dead';}}break;}}}
   for(var i=pups.length-1;i>=0;i--){
     var p=pups[i];p.y+=p.vy;
     if(p.y>H()){pups.splice(i,1);continue;}
@@ -1231,7 +1231,13 @@ function draw(){
   var cw=W(),ch=H();
   X.fillStyle='#000';X.fillRect(0,0,cw,ch);
   if(state==='start'){
-    drawStars();
+    X.fillStyle='#000';X.fillRect(0,0,cw,ch);
+    // Sadece yıldızlar — gezegenler yazıları bozmasın
+    for(var i=0;i<stars.length;i++){
+      var s=stars[i];
+      X.fillStyle='rgba(255,255,255,'+(0.15+0.2*Math.abs(Math.sin(s.tw/60*Math.PI)))+')';
+      X.fillRect(Math.floor(s.x),Math.floor(s.y),s.s,s.s);
+    }
     X.textAlign='center';
     var ts=Math.floor(cw/11),bs=Math.floor(cw/32),lh=bs*2.1;
     // Başlık
