@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta name="theme-color" content="#000000">
-<style>
-  :root { --status-bar-color: #000000; }
-</style>
-  <meta name="theme-color" content="#000000">
-  <link rel="manifest" href="manifest.json">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
 <title>Galactic Defender</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;width:100vw;font-family:'Courier New',monospace;overflow:hidden;touch-action:none;}
+html{background:#000;}
+body{background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100vw;height:100vh;height:100dvh;font-family:'Courier New',monospace;overflow:hidden;touch-action:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);}
 #ui{color:#0ff;font-size:12px;display:flex;justify-content:space-between;align-items:center;width:100%;max-width:480px;padding:4px 10px;}
 #pauseBtn{background:rgba(0,255,255,.1);border:1px solid rgba(0,255,255,.3);border-radius:4px;color:#0ff;font-size:11px;padding:2px 6px;cursor:pointer;user-select:none;}
 canvas{display:block;touch-action:none;image-rendering:pixelated;}
@@ -38,7 +38,6 @@ canvas{display:block;touch-action:none;image-rendering:pixelated;}
 </div>
 <script>
 // ── CANVAS ──────────────────────────────────────────────────────
-// hex color + alpha helper — handles #rgb and #rrggbb
 function ca(hex,a){
   if(hex.length===4){var r=parseInt(hex[1]+hex[1],16),g=parseInt(hex[2]+hex[2],16),b=parseInt(hex[3]+hex[3],16);return 'rgba('+r+','+g+','+b+','+a+')';}
   var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return 'rgba('+r+','+g+','+b+','+a+')';
@@ -74,10 +73,8 @@ function sBossIn(){tn(80,.5,.7,'sawtooth');tn(60,.5,.7,'sawtooth',.35);tn(40,.7,
 function sBossPhase(){tn(55,.4,.5,'sawtooth');tn(80,.3,.4,'sawtooth',.2);}
 function sBossDead(){for(var i=0;i<4;i++)(function(ii){setTimeout(function(){sPop(true);tn(30+ii*10,.5,.6,'sawtooth');},ii*150);})(i);}
 function bossExplode(x,y,col){
-  // sahneyi temizle
   eBullets=[];bullets=[];pups=[];
   phase='bossExploding';
-  // Büyük patlama: çok sayıda parçacık
   for(var i=0;i<40;i++){
     var a=Math.random()*Math.PI*2,spd=Math.random()*6+1;
     parts.push({x:x,y:y,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,
@@ -85,7 +82,6 @@ function bossExplode(x,y,col){
       col:[col,'#fff','#ff0','#f80','#f55'][Math.floor(Math.random()*5)],
       r:PX()*(Math.random()*3+1)});
   }
-  // 3 genişleyen halka dalgası
   for(var w=0;w<3;w++)(function(wi){
     setTimeout(function(){
       for(var i=0;i<16;i++){
@@ -95,7 +91,6 @@ function bossExplode(x,y,col){
       }
     },wi*120);
   })(w);
-  // Parlak merkez patlaması
   for(var i=0;i<14;i++){
     var a=Math.random()*Math.PI*2,spd2=Math.random()*10+3;
     parts.push({x:x,y:y,vx:Math.cos(a)*spd2,vy:Math.sin(a)*spd2,
@@ -194,19 +189,12 @@ function drawCRT(){
 var MAX_WAVE=15;
 var state='start',score=0,lives=3,wave=1;
 var combo=0,cTimer=0,warpT=0;
-// phase: idle | countdown | bossIntro | playing | bossPlaying | clearing
 var phase='idle',phTimer=0,cdN=0;
-
-// boss intro state — simple counter
 var introActive=false,introT=0,introCfg=null;
-
-// win state
 var winTimer=0,winParts=[];
-
 var P={};
 function resetP(){P={x:W()/2,y:H()-60,w:30,h:32,spd:1.1,inv:0,shld:0};}
 resetP();
-
 var bullets=[],eBullets=[],enemies=[],parts=[],pups=[],floats=[];
 var boss=null,bDir=1,sCool=0,rTimer=0,xTimer=0,rocketReady=0,rockets=[];
 
@@ -246,9 +234,8 @@ function spawnWave(w){
   enemies=[];boss=null;eBullets=[];bullets=[];rockets=[];
   var def=WAVE_DEFS[Math.min(w-1,WAVE_DEFS.length-1)];
   if(def.boss){
-    // set up intro — this is the ONLY place introActive becomes true
     introCfg=getBoss(w);
-    introT=300; // 300 frames = ~5 seconds
+    introT=300;
     introActive=true;
     phase='bossIntro';
     sBossIn();
@@ -336,26 +323,20 @@ function drawBossSprite(bx,by,cfg_or_boss,scale){
   var fl=Math.floor(Date.now()/80)%2;
   X.shadowBlur=10;X.shadowColor=col;
   if(design==='dragon'){
-    // WARDEN — zırhlı kale gemisi tasarımı
-    // Gövde: merkez blok + yanlara çıkan kanatlar
-    pr(bx-p*3,by-p*4,p*6,p*8,col);           // ana gövde
-    pr(bx-p*5,by-p*2,p*10,p*4,col);           // yatay kanat şeridi
-    pr(bx-p*6,by-p,p*2,p*3,col);              // sol kanat ucu
-    pr(bx+p*4,by-p,p*2,p*3,col);              // sağ kanat ucu
-    // Zırh detayları
-    pr(bx-p*2,by-p*4,p*4,p,ca(col,0.5));      // üst zırh plaka
-    pr(bx-p*4,by-p*2,p,p*4,'#f40');           // sol ateş çıkışı
-    pr(bx+p*3,by-p*2,p,p*4,'#f40');           // sağ ateş çıkışı
-    // Merkez top namlusu
+    pr(bx-p*3,by-p*4,p*6,p*8,col);
+    pr(bx-p*5,by-p*2,p*10,p*4,col);
+    pr(bx-p*6,by-p,p*2,p*3,col);
+    pr(bx+p*4,by-p,p*2,p*3,col);
+    pr(bx-p*2,by-p*4,p*4,p,ca(col,0.5));
+    pr(bx-p*4,by-p*2,p,p*4,'#f40');
+    pr(bx+p*3,by-p*2,p,p*4,'#f40');
     pr(bx-p,by+p*3,p*2,p*3,fl?'#ff0':'#fa0');
     pr(bx-p*2,by+p*4,p*4,p*2,col);
-    // Gözler / sensörler
     X.shadowColor='#ff0';X.shadowBlur=14;
     pr(bx-p*2,by-p*2,p*2,p*2,fl?'#fff':'#ff0');
     pr(bx,by-p*2,p*2,p*2,fl?'#fff':'#ff0');
     X.shadowBlur=0;
     pr(bx-p,by-p,p,p,'#000');pr(bx+p*0.5,by-p,p,p,'#000');
-    // Kanat roket alevi
     pr(bx-p*6,by+p,p,p*2,fl?'#ff0':'#f80');
     pr(bx+p*5,by+p,p,p*2,fl?'#ff0':'#f80');
   }else if(design==='spider'){
@@ -393,43 +374,28 @@ function drawBoss(){
   if(boss.lc>0&&!boss.la){X.save();X.strokeStyle='rgba(255,100,100,'+(boss.lc/120)+')';X.lineWidth=PX();X.setLineDash([PX()*2,PX()*2]);X.beginPath();X.moveTo(boss.x,boss.y+boss.h/2);X.lineTo(boss.x,H());X.stroke();X.setLineDash([]);X.restore();}
 }
 
-// ── BOSS INTRO DRAW — the ONLY draw function for bossIntro phase ──
 function drawBossIntroScreen(){
   var cw=W(),ch=H(),px=PX();
-  var t=introT;           // counts 300 → 0
+  var t=introT;
   var col=introCfg.col;
   var nm=introCfg.name;
-
-  // fill black
   X.fillStyle='#000';
   X.fillRect(0,0,cw,ch);
-
-  // draw stars (static during intro)
   drawStars();
-
   if(t>60){
-    // ── PHASE A: name reveal ──
-    var prog=(300-t)/240; // 0 → 1 as t goes 300 → 60
+    var prog=(300-t)/240;
     if(prog<0)prog=0; if(prog>1)prog=1;
-
-    // dark overlay
     X.fillStyle='rgba(0,0,10,'+(0.15+prog*0.82)+')';
     X.fillRect(0,0,cw,ch);
-
-    // colored scanlines
     X.globalAlpha=0.07; X.fillStyle=col;
     for(var i=0;i<ch;i+=4) X.fillRect(0,i,cw,2);
     X.globalAlpha=1;
-
-    // corner brackets
     var cb=px*5;
     X.fillStyle=col;
-    X.fillRect(0,0,cb,px);    X.fillRect(0,0,px,cb);
+    X.fillRect(0,0,cb,px);X.fillRect(0,0,px,cb);
     X.fillRect(cw-cb,0,cb,px);X.fillRect(cw-px,0,px,cb);
     X.fillRect(0,ch-px,cb,px);X.fillRect(0,ch-cb,px,cb);
     X.fillRect(cw-cb,ch-px,cb,px);X.fillRect(cw-px,ch-cb,px,cb);
-
-    // "BOSS YAKLAŞIYOR" blink in first 40%
     if(prog<0.42 && Math.floor(t/8)%2===0){
       X.textAlign='center';
       X.fillStyle='#f00';X.shadowBlur=10;X.shadowColor='#f00';
@@ -437,48 +403,32 @@ function drawBossIntroScreen(){
       X.fillText('!! BOSS YAKLAŞIYOR !!',cw/2,ch*0.18);
       X.shadowBlur=0;
     }
-
-    // BOSS NAME: letters fall from top one by one
     var nameProg = prog<0.08 ? 0 : Math.min(1,(prog-0.08)/0.62);
     if(nameProg>0){
       var fs=Math.floor(cw/5.0);
       X.font='bold '+fs+'px Courier New';
       X.textBaseline='middle';X.textAlign='left';
-      // measure letters
       var ws=[],totalW=0;
-      for(var i=0;i<nm.length;i++){
-        var ww=X.measureText(nm[i]).width;
-        ws.push(ww);totalW+=ww;
-      }
+      for(var i=0;i<nm.length;i++){var ww=X.measureText(nm[i]).width;ws.push(ww);totalW+=ww;}
       var ox=cw/2-totalW/2;
       var targetY=ch*0.40;
       for(var i=0;i<nm.length;i++){
-        // stagger each letter
         var lp=nameProg*nm.length - i;
         if(lp<=0){ox+=ws[i];continue;}
         if(lp>1)lp=1;
-        // ease out cubic
         var ease=1-Math.pow(1-lp,3);
         var ly=(-fs*2.5)+(targetY+fs*2.5)*ease;
-        // bounce at landing
         if(lp>0.82) ly+=Math.sin((lp-0.82)/0.18*Math.PI)*px*5*(1-lp)*0.5;
-        // black shadow
         X.fillStyle='rgba(0,0,0,0.9)';
         X.fillText(nm[i],ox+px*2,ly+px*2);
-        // colored glow
         X.fillStyle=col;
         X.shadowBlur=Math.round(lp*30);X.shadowColor=col;
         X.fillText(nm[i],ox,ly);
         X.shadowBlur=0;
-        // white flash when freshly landed
-        if(lp<0.20){
-          X.fillStyle='rgba(255,255,255,'+(1-lp/0.20)+')';
-          X.fillText(nm[i],ox,ly);
-        }
+        if(lp<0.20){X.fillStyle='rgba(255,255,255,'+(1-lp/0.20)+')';X.fillText(nm[i],ox,ly);}
         ox+=ws[i];
       }
       X.textBaseline='alphabetic';
-      // underline after all letters landed
       if(nameProg>0.90){
         var ual=Math.min(1,(nameProg-0.90)*10);
         X.globalAlpha=ual;X.fillStyle=col;
@@ -486,8 +436,6 @@ function drawBossIntroScreen(){
         X.globalAlpha=1;
       }
     }
-
-    // HP bar + pattern (prog > 0.60)
     if(prog>0.60){
       var ial=Math.min(1,(prog-0.60)*2.5);
       X.globalAlpha=ial;X.textAlign='center';
@@ -502,8 +450,6 @@ function drawBossIntroScreen(){
       X.fillText('HP: '+introCfg.hp,cw/2,hby+hbh*0.85);
       X.globalAlpha=1;
     }
-
-    // HAZIR OL blink (prog > 0.80)
     if(prog>0.80){
       var hal=Math.min(1,(prog-0.80)*5);
       var bk=Math.floor(t/9)%2===0;
@@ -518,27 +464,17 @@ function drawBossIntroScreen(){
       X.fillText('HAZIR OL!',cw/2,ch*0.72+px*5*0.70);
       X.shadowBlur=0;X.globalAlpha=1;
     }
-
   } else {
-    // ── PHASE B: boss drops in (t 60→0) ──
-    var ep=(60-t)/60; // 0→1
-
-    // overlay fades out
+    var ep=(60-t)/60;
     X.fillStyle='rgba(0,0,10,'+(0.90-ep*0.82)+')';
     X.fillRect(0,0,cw,ch);
-
-    // boss y: from top (-120) to landing pos (ch*0.22)
     var entY=-120+(ch*0.22+120)*ep;
     var bx2=Math.floor(cw/2),by2=Math.floor(entY);
-
-    // entry trail
     if(by2>-100){
       var grad=X.createLinearGradient(bx2,by2-80,bx2,by2);
       grad.addColorStop(0,'rgba(0,0,0,0)');grad.addColorStop(1,ca(col,0.53));
       X.fillStyle=grad;X.fillRect(bx2-px*6,by2-80,px*12,80);
     }
-
-    // shockwave ring
     if(ep>0.35){
       var rp=(ep-0.35)/0.65;
       X.globalAlpha=Math.max(0,0.6-rp*0.6);
@@ -546,22 +482,16 @@ function drawBossIntroScreen(){
       X.beginPath();X.arc(bx2,by2,rp*cw*0.65,0,Math.PI*2);X.stroke();
       X.globalAlpha=1;
     }
-
-    // boss sprite
     X.globalAlpha=Math.min(1,ep*3);
     X.shadowBlur=20;X.shadowColor=col;
     drawBossSprite(bx2,by2,introCfg,1);
     X.shadowBlur=0;X.globalAlpha=1;
-
-    // fire particles off boss sides
     if(Math.random()<0.65){
       var sd=Math.random()<0.5?-1:1;
       parts.push({x:bx2+sd*(px*3+Math.random()*px*4),y:by2+Math.random()*px*5,
         vx:sd*(Math.random()*2+0.5),vy:-(Math.random()*1.5+0.3),
         life:16+Math.random()*10,col:col,r:PX()*(Math.random()*1.2+0.5)});
     }
-
-    // name fades out
     X.globalAlpha=Math.max(0,1-ep*2.5);
     X.textAlign='center';X.textBaseline='middle';
     X.fillStyle=col;X.shadowBlur=18;X.shadowColor=col;
@@ -569,8 +499,6 @@ function drawBossIntroScreen(){
     X.fillText(nm,cw/2,ch*0.38);
     X.shadowBlur=0;X.globalAlpha=1;X.textBaseline='alphabetic';
   }
-
-  // particles
   for(var i=parts.length-1;i>=0;i--){
     var pt=parts[i];pt.x+=pt.vx;pt.y+=pt.vy;pt.vy+=0.04;pt.life--;
     if(pt.life<=0){parts.splice(i,1);continue;}
@@ -586,8 +514,7 @@ function bossShoot(){
   if(!boss||boss.entering||boss.st>0){if(boss&&boss.st>0)boss.st--;return;}
   var ph=boss.hp/boss.mhp,ang=Math.atan2(P.y-boss.y,P.x-boss.x);
   boss.sc=(boss.sc||0)+1;
-  var bc=boss.col; // boss rengi mermilere geçiyor
-
+  var bc=boss.col;
   if(boss.pattern==='spiral'){
     boss.spiralAng=(boss.spiralAng||ang);
     boss.spiralAng+=ph>.66?.18:ph>.33?.25:.32;
@@ -602,7 +529,6 @@ function bossShoot(){
       eBullets.push({x:boss.x,y:boss.y+boss.h/2,vx:Math.cos(ang)*2.0,vy:Math.sin(ang)*2.0,r:true,bt:'spiral_aimed',bc:bc,rot:ang});
     }
     boss.st=ph>.66?55:ph>.33?42:30;
-
   }else if(boss.pattern==='wave'){
     boss.waveT=(boss.waveT||0)+1;
     var wSpd=ph>.66?1.6:ph>.33?1.9:2.2;
@@ -617,7 +543,6 @@ function bossShoot(){
       eBullets.push({x:boss.x,y:boss.y+boss.h/2,vx:Math.cos(ang+off)*wSpd,vy:Math.sin(ang+off)*wSpd,r:true,bt:'wave_aimed',bc:bc});
     }
     boss.st=ph>.66?58:ph>.33?44:32;
-
   }else{
     var cSpd=ph>.66?1.5:ph>.33?1.8:2.0;
     var diags=[Math.PI/4,Math.PI*3/4,Math.PI*5/4,Math.PI*7/4];
@@ -636,7 +561,6 @@ function bossShoot(){
     }
     boss.st=ph>.66?48:ph>.33?35:24;
   }
-
   if(ph<.66&&boss.ph===1){boss.ph=2;ft(boss.x,boss.y-28,'PHASE 2!',boss.col);ring(boss.x,boss.y,boss.col);sBossPhase();}
   if(ph<.33&&boss.ph===2){boss.ph=3;ft(boss.x,boss.y-28,'PHASE 3!','#f55');ring(boss.x,boss.y,'#f55');sBossPhase();}
 }
@@ -703,10 +627,8 @@ function drawWinScreen(){
   X.fillStyle='#000';X.fillRect(0,0,cw,ch);
   drawStars();
   X.fillStyle='rgba(0,0,10,.82)';X.fillRect(0,0,cw,ch);
-  // confetti
   if(winTimer%3===0)winParts.push({x:Math.random()*cw,y:-10,vx:(Math.random()-.5)*2,vy:Math.random()*2+1,col:['#ff0','#0ff','#f0f','#0f0','#f55','#f90','#fff'][Math.floor(Math.random()*7)],life:180+Math.random()*60,r:PX()*(Math.random()*1.5+.5),rot:Math.random()*Math.PI*2,rotv:(Math.random()-.5)*.12});
   for(var i=winParts.length-1;i>=0;i--){var wp=winParts[i];wp.x+=wp.vx;wp.y+=wp.vy;wp.vy+=.03;wp.rot+=wp.rotv;wp.life--;if(wp.life<=0||wp.y>ch+20){winParts.splice(i,1);continue;}X.globalAlpha=Math.min(1,wp.life/40);X.fillStyle=wp.col;X.save();X.translate(wp.x,wp.y);X.rotate(wp.rot);X.fillRect(-wp.r,-wp.r,wp.r*2,wp.r*2);X.restore();}X.globalAlpha=1;
-  // lines sliding in
   var yBase=ch*.14,lineH=ch*0.095,speed=1.4,delay=40;
   X.textAlign='center';
   for(var i=0;i<WIN_LINES.length;i++){
@@ -721,9 +643,7 @@ function drawWinScreen(){
     X.shadowBlur=12;X.shadowColor=ln.col;X.fillStyle=ln.col;
     X.fillText(txt,cw/2,curY);X.shadowBlur=0;
   }
-  // frame
   if(winTimer>80){var px2=PX(),fal=Math.min(.9,(winTimer-80)/60);X.globalAlpha=fal;X.strokeStyle='#ff0';X.lineWidth=px2*1.5;X.strokeRect(px2*2,px2*2,cw-px2*4,ch-px2*4);X.strokeStyle='#0ff';X.lineWidth=px2*.5;X.strokeRect(px2*4,px2*4,cw-px2*8,ch-px2*8);X.globalAlpha=1;}
-  // menu button
   if(winTimer>160){
     var blink=Math.floor(winTimer/22)%2===0,bx=cw/2-90,by=ch*.88,bw=180,bh=PX()*7;
     X.globalAlpha=Math.min(1,(winTimer-160)/40);
@@ -750,28 +670,16 @@ function resetAll(){
 // ── UPDATE ────────────────────────────────────────────────────────
 function update(){
   if(state!=='play'||paused)return;
-
-  // stars/planets always scroll
   for(var i=0;i<stars.length;i++){var s=stars[i];s.y+=s.sp;if(s.y>H())s.y=0;s.tw=(s.tw+1)%60;}
   for(var i=0;i<planets.length;i++){var pl=planets[i];pl.y+=pl.sp;if(pl.y>H()+pl.r*2){pl.y=-pl.r*2;pl.x=Math.random()*W();}}
-
-  // ── phase machine ──────────────────────────────────────────────
-  if(phase==='idle'){
-    phase='countdown';cdN=3;phTimer=60;
-    return;
-  }
+  if(phase==='idle'){phase='countdown';cdN=3;phTimer=60;return;}
   if(phase==='countdown'){
     phTimer--;
     if(phTimer<=0){cdN--;phTimer=60;}
     if(cdN<0){spawnWave(wave);}
     return;
   }
-  if(phase==='bossIntro'){
-    // ONLY decrement introT, then return — draw() handles the visuals
-    introT--;
-    if(introT<=0){spawnBoss();}
-    return;
-  }
+  if(phase==='bossIntro'){introT--;if(introT<=0){spawnBoss();}return;}
   if(phase==='clearing'){
     phTimer--;
     if(phTimer===25)warpT=13;
@@ -783,21 +691,17 @@ function update(){
     return;
   }
   if(phase==='bossExploding'){
-    // parçacıklar ve floatlar güncelle, bitince clearing'e geç
     for(var i=parts.length-1;i>=0;i--){var p=parts[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.04;p.life--;if(p.life<=0)parts.splice(i,1);}
     for(var i=floats.length-1;i>=0;i--){var f=floats[i];f.y+=f.vy;f.life--;if(f.life<=0)floats.splice(i,1);}
     if(parts.length===0&&floats.length===0){phase='clearing';phTimer=60;}
     return;
   }
   if(warpT>0){warpT--;for(var i=0;i<stars.length;i++)stars[i].sp=20;return;}
-
-  // ── gameplay ───────────────────────────────────────────────────
   var sp=P.spd*(W()/300);
   if(K.l)P.x=Math.max(P.w/2,P.x-sp);
   if(K.r)P.x=Math.min(W()-P.w/2,P.x+sp);
   if(K.u)P.y=Math.max(P.h/2,P.y-sp);
   if(K.d)P.y=Math.min(H()-P.h/2,P.y+sp);
-
   if(K.f&&sCool<=0){
     if(rocketReady){fireRocket();sCool=10;}
     else if(xTimer>0){for(var i=-2;i<=2;i++)bullets.push({x:P.x,y:P.y-P.h/2,vx:i*1.6,vy:-12});}
@@ -807,15 +711,12 @@ function update(){
   }
   if(sCool>0)sCool--;if(rTimer>0)rTimer--;if(xTimer>0)xTimer--;
   if(P.inv>0)P.inv--;if(P.shld>0)P.shld--;if(cTimer>0)cTimer--;else combo=0;
-
   var maxEB=Math.max(30,8+Math.floor(wave/2)*4);
   if(eBullets.length>maxEB)eBullets.splice(0,eBullets.length-maxEB);
-
   bullets=bullets.filter(function(b){return b.y>-15;});
   eBullets=eBullets.filter(function(b){return b.y<H()+15&&b.x>-25&&b.x<W()+25;});
   for(var i=0;i<bullets.length;i++){bullets[i].x+=bullets[i].vx;bullets[i].y+=bullets[i].vy;}
   for(var i=0;i<eBullets.length;i++){eBullets[i].x+=eBullets[i].vx;eBullets[i].y+=eBullets[i].vy;}
-
   var spd2=.20+wave*.010;
   for(var i=0;i<enemies.length;i++){
     var e=enemies[i];e.ang=(e.ang||0)+.05;
@@ -833,7 +734,6 @@ function update(){
       if(e.y>H()-40){state='dead';return;}
     }
   }
-
   if(boss&&boss.entering){boss.y+=1.5;if(boss.y>=82)boss.entering=false;return;}
   if(boss){
     boss.x+=bDir*(.9+Math.floor(wave/5)*.1);
@@ -843,7 +743,6 @@ function update(){
       if(Math.abs(b.x-boss.x)<boss.w/2&&Math.abs(b.y-boss.y)<boss.h/2){boss.hp--;bullets.splice(i,1);burst(b.x,b.y,boss.col,4);
         if(boss.hp<=0){var pts=600+wave*80;score+=pts;bossExplode(boss.x,boss.y,boss.col);sBossDead();ft(boss.x,boss.y,'BOSS +'+pts,'#ff0');boss=null;}}}
   }
-
   outer:for(var i=bullets.length-1;i>=0;i--){var b=bullets[i];
     for(var j=enemies.length-1;j>=0;j--){var e=enemies[j];
       if(Math.abs(b.x-e.x)<e.w/2&&Math.abs(b.y-e.y)<e.h/2){e.hp--;bullets.splice(i,1);burst(b.x,b.y,e.col,3,2.5);
@@ -852,12 +751,10 @@ function update(){
           if(Math.random()<(wave<=5?.28:.18)&&lives<5)pups.push({x:e.x,y:e.y,t:'H',vy:1.1});
           else if(Math.random()<.28){var ts=['R','S','X','B','R','S'];pups.push({x:e.x,y:e.y,t:ts[Math.floor(Math.random()*ts.length)],vy:1.1});}
           enemies.splice(j,1);}continue outer;}}}
-
   if(P.inv<=0){for(var i=eBullets.length-1;i>=0;i--){var b=eBullets[i];
     var hit=b.r?Math.hypot(b.x-P.x,b.y-P.y)<P.w/2+3:Math.abs(b.x-P.x)<P.w/2&&Math.abs(b.y-P.y)<P.h/2;
     if(hit){eBullets.splice(i,1);if(P.shld>0){P.shld=0;burst(P.x,P.y,'#0ff',8);}
       else{lives--;P.inv=120;sHit();burst(P.x,P.y,'#4af',10);if(lives<=0){state='dead';}}break;}}}
-
   for(var i=pups.length-1;i>=0;i--){var p=pups[i];p.y+=p.vy;if(p.y>H()){pups.splice(i,1);continue;}
     if(Math.abs(p.x-P.x)<22&&Math.abs(p.y-P.y)<22){
       if(p.t==='R')rTimer=280;else if(p.t==='S')P.shld=400;else if(p.t==='X')xTimer=280;
@@ -865,12 +762,10 @@ function update(){
       else if(p.t==='B')doBomb();
       ring(p.x,p.y,'#ff0',5,2.5);sPU();pups.splice(i,1);
     }}
-
   updateRockets();
   for(var i=parts.length-1;i>=0;i--){var p=parts[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.04;p.life--;if(p.life<=0)parts.splice(i,1);}
   for(var i=floats.length-1;i>=0;i--){var f=floats[i];f.y+=f.vy;f.life--;if(f.life<=0)floats.splice(i,1);}
   if(enemies.length===0&&!boss&&(phase==='playing'||phase==='bossPlaying')){phase='clearing';phTimer=60;}
-
   document.getElementById('sEl').textContent=score;
   document.getElementById('wEl').textContent=wave+'/'+MAX_WAVE;
   document.getElementById('lEl').textContent='❤️'.repeat(Math.max(0,lives));
@@ -880,8 +775,6 @@ function update(){
 function draw(){
   var cw=W(),ch=H();
   X.fillStyle='#000';X.fillRect(0,0,cw,ch);
-
-  // ── START SCREEN ───────────────────────────────────────────────
   if(state==='start'){
     drawStars();
     X.textAlign='center';
@@ -899,44 +792,23 @@ function draw(){
     X.beginPath();X.roundRect(bx,by,bw,bh,10);X.fill();X.stroke();
     X.font=Math.floor(cw/38)+'px Courier New';X.fillStyle=musicOn?'#0ff':'#555';
     X.fillText((musicOn?'🎵':'🔇')+'  Müzik '+(musicOn?'Açık':'Kapalı'),cw/2,by+bh*.68);
-    drawCRT();
-    return;
+    drawCRT();return;
   }
-
-  // ── DEAD SCREEN ────────────────────────────────────────────────
   if(state==='dead'){
     drawStars();
     X.textAlign='center';
     X.fillStyle='#f44';X.font='bold '+Math.floor(cw/9)+'px Courier New';X.shadowBlur=14;X.shadowColor='#f44';X.fillText('GAME OVER',cw/2,ch*.32);X.shadowBlur=0;
     X.fillStyle='#fff';X.font='bold '+Math.floor(cw/22)+'px Courier New';X.fillText('SKOR: '+score,cw/2,ch*.46);
     X.fillStyle='#0ff';X.font=Math.floor(cw/26)+'px Courier New';X.shadowBlur=8;X.shadowColor='#0ff';X.fillText('🔥 bas tekrar',cw/2,ch*.88);X.shadowBlur=0;
-    drawCRT();
-    return;
+    drawCRT();return;
   }
-
-  // ── WIN SCREEN ─────────────────────────────────────────────────
-  if(state==='win'){
-    drawWinScreen();
-    return;
-  }
-
-  // ── BOSS INTRO — full screen takeover ─────────────────────────
-  if(phase==='bossIntro'){
-    drawBossIntroScreen();
-    return;  // ← nothing else draws
-  }
-
-  // ── GAMEPLAY ───────────────────────────────────────────────────
-
-  // warp effect
+  if(state==='win'){drawWinScreen();return;}
+  if(phase==='bossIntro'){drawBossIntroScreen();return;}
   if(warpT>0){
     for(var i=0;i<stars.length;i++){var s=stars[i];X.strokeStyle='rgba(255,255,255,.4)';X.lineWidth=1;X.beginPath();X.moveTo(s.x,s.y);X.lineTo(s.x,s.y+s.sp*13);X.stroke();}
     drawCRT();return;
   }
-
   drawStars();
-
-  // paused overlay
   if(paused){
     X.fillStyle='rgba(0,0,0,.65)';X.fillRect(0,0,cw,ch);
     X.textAlign='center';X.fillStyle='#ff0';X.font='bold '+Math.floor(cw/10)+'px Courier New';
@@ -944,13 +816,9 @@ function draw(){
     X.fillStyle='#aff';X.font=Math.floor(cw/28)+'px Courier New';X.fillText('⏸ butonuna bas',cw/2,ch/2+42);
     drawCRT();return;
   }
-
-  // enemies
   for(var i=0;i<enemies.length;i++)drawEnemySprite(enemies[i]);
   drawBoss();
   for(var i=0;i<pups.length;i++)drawPup(pups[i]);
-
-  // rockets
   var rpx=PX();
   for(var i=0;i<rockets.length;i++){
     var rk=rockets[i];
@@ -969,8 +837,6 @@ function draw(){
     }
   }
   X.shadowBlur=0;
-
-  // player bullets
   var px=PX();
   var bCols=['#0f0','#ff0','#0ff','#f0f'];
   for(var i=0;i<bullets.length;i++){
@@ -981,85 +847,50 @@ function draw(){
     X.fillStyle='#fff';X.fillRect(bx-px/2,by-px*2,px,px);
   }
   X.shadowBlur=0;
-
-  // enemy bullets
   for(var i=0;i<eBullets.length;i++){
     var b=eBullets[i];
     var bx2=Math.floor(b.x),by2=Math.floor(b.y);
     if(b.bt){
-      // ── BOSS BULLETS: her pattern'in kendi görünümü ──
       var bc2=b.bc||'#f55';
-      X.save();
-      X.translate(bx2,by2);
+      X.save();X.translate(bx2,by2);
       if(b.bt==='spiral'||b.bt==='spiral_aimed'){
-        // WARDEN: turuncu dönen üçgen
         var angle2=Math.atan2(b.vy,b.vx);
         X.rotate(angle2+Math.PI/2);
         X.fillStyle=b.bt==='spiral_aimed'?'#fff':bc2;
         X.shadowBlur=8;X.shadowColor=bc2;
-        X.beginPath();
-        X.moveTo(0,-px*2.5);
-        X.lineTo(px*1.5,px*1.5);
-        X.lineTo(-px*1.5,px*1.5);
-        X.closePath();X.fill();
-        // iç parlama
-        X.fillStyle='rgba(255,255,255,0.5)';
-        X.beginPath();X.arc(0,0,px*0.6,0,Math.PI*2);X.fill();
+        X.beginPath();X.moveTo(0,-px*2.5);X.lineTo(px*1.5,px*1.5);X.lineTo(-px*1.5,px*1.5);X.closePath();X.fill();
+        X.fillStyle='rgba(255,255,255,0.5)';X.beginPath();X.arc(0,0,px*0.6,0,Math.PI*2);X.fill();
         X.shadowBlur=0;
       }else if(b.bt==='wave'||b.bt==='wave_aimed'){
-        // CRUSHER: mor damla şekli
         X.fillStyle=b.bt==='wave_aimed'?'#fff':bc2;
         X.shadowBlur=9;X.shadowColor=bc2;
-        X.beginPath();
-        X.arc(0,0,px*1.4,0,Math.PI*2);X.fill();
-        // dış halka
-        X.strokeStyle=bc2;X.lineWidth=px*0.5;
-        X.globalAlpha=0.5;
-        X.beginPath();X.arc(0,0,px*2.2,0,Math.PI*2);X.stroke();
-        X.globalAlpha=1;
-        // merkez nokta
-        X.fillStyle='#fff';
-        X.beginPath();X.arc(0,0,px*0.5,0,Math.PI*2);X.fill();
+        X.beginPath();X.arc(0,0,px*1.4,0,Math.PI*2);X.fill();
+        X.strokeStyle=bc2;X.lineWidth=px*0.5;X.globalAlpha=0.5;
+        X.beginPath();X.arc(0,0,px*2.2,0,Math.PI*2);X.stroke();X.globalAlpha=1;
+        X.fillStyle='#fff';X.beginPath();X.arc(0,0,px*0.5,0,Math.PI*2);X.fill();
         X.shadowBlur=0;
       }else if(b.bt==='cross'||b.bt==='cross_aimed'){
-        // NEMESIS: sarı dönen artı/yıldız
         var ang3=Math.atan2(b.vy,b.vx);
-        X.rotate(ang3+(Date.now()*0.008%Math.PI)); // sürekli döner
+        X.rotate(ang3+(Date.now()*0.008%Math.PI));
         X.fillStyle=b.bt==='cross_aimed'?'#fff':bc2;
         X.shadowBlur=10;X.shadowColor=bc2;
-        // artı şekli
-        X.fillRect(-px*0.7,-px*2.5,px*1.4,px*5);
-        X.fillRect(-px*2.5,-px*0.7,px*5,px*1.4);
-        // köşe noktaları
+        X.fillRect(-px*0.7,-px*2.5,px*1.4,px*5);X.fillRect(-px*2.5,-px*0.7,px*5,px*1.4);
         X.fillStyle='rgba(255,255,255,0.7)';
-        for(var k=0;k<4;k++){
-          var ka=k*(Math.PI/2);
-          X.beginPath();X.arc(Math.cos(ka)*px*1.8,Math.sin(ka)*px*1.8,px*0.5,0,Math.PI*2);X.fill();
-        }
+        for(var k=0;k<4;k++){var ka=k*(Math.PI/2);X.beginPath();X.arc(Math.cos(ka)*px*1.8,Math.sin(ka)*px*1.8,px*0.5,0,Math.PI*2);X.fill();}
         X.shadowBlur=0;
       }
       X.restore();
     }else if(b.r){
-      // düşman (normal) mermisi — kırmızı kare
       X.fillStyle='#f55';X.shadowBlur=3;X.shadowColor='#f55';
-      X.fillRect(bx2-px,by2-px,px*2,px*2);
-      X.shadowBlur=0;
+      X.fillRect(bx2-px,by2-px,px*2,px*2);X.shadowBlur=0;
     }else{
-      // düşman uzun mermisi
       X.fillStyle='#f55';X.shadowBlur=3;X.shadowColor='#f55';
-      X.fillRect(bx2-px/2,by2-px,px,px*3);
-      X.shadowBlur=0;
+      X.fillRect(bx2-px/2,by2-px,px,px*3);X.shadowBlur=0;
     }
   }
-
-  // particles
   for(var i=0;i<parts.length;i++){var p=parts[i];X.globalAlpha=Math.min(1,p.life/46);X.fillStyle=p.col;X.fillRect(Math.floor(p.x-p.r/2),Math.floor(p.y-p.r/2),Math.ceil(p.r),Math.ceil(p.r));}
   X.globalAlpha=1;
-
-  // player ship (patlama sırasında gizle)
   if(phase!=='bossExploding'&&(P.inv<=0||Math.floor(P.inv/6)%2===0))drawShip();
-
-  // countdown overlay
   if(phase==='countdown'){
     X.fillStyle='rgba(0,0,0,.5)';X.fillRect(0,0,cw,ch);X.textAlign='center';
     X.fillStyle='#ff0';X.font='bold '+Math.floor(cw/4)+'px Courier New';X.shadowBlur=24;X.shadowColor='#ff0';X.fillText(cdN>0?cdN:'GO!',cw/2,ch/2+20);X.shadowBlur=0;
@@ -1069,35 +900,23 @@ function draw(){
     if(isBoss&&cdN>0){var bc=getBoss(wave);X.fillStyle=bc.col;X.font='bold '+Math.floor(cw/20)+'px Courier New';X.shadowBlur=10;X.shadowColor=bc.col;X.fillText('⚠ '+bc.name+' ⚠',cw/2,ch/2+78);X.shadowBlur=0;}
     else if(cdN>0){X.fillStyle='#0f0';X.font=Math.floor(cw/32)+'px Courier New';X.fillText('❤️ +1 Can!',cw/2,ch/2+78);}
   }
-
-  // floats
   for(var i=0;i<floats.length;i++){var f=floats[i];X.globalAlpha=f.life/60;X.fillStyle=f.col;X.font='bold '+Math.floor(W()/26)+'px Courier New';X.textAlign='center';X.fillText(f.txt,f.x,f.y);}X.globalAlpha=1;
-
-  // wave clear
   if(phase==='clearing'&&phTimer>10&&warpT<=0){X.fillStyle='#ff0';X.font='bold '+Math.floor(W()/18)+'px Courier New';X.textAlign='center';X.shadowBlur=10;X.shadowColor='#ff0';X.fillText('DALGA '+wave+' BİTTİ!',W()/2,H()/2);X.shadowBlur=0;}
-
-  // boss exploding overlay text
   if(phase==='bossExploding'){
     var blink=Math.floor(Date.now()/120)%2===0;
     if(blink){X.fillStyle='#ff0';X.font='bold '+Math.floor(W()/14)+'px Courier New';X.textAlign='center';X.shadowBlur=16;X.shadowColor='#ff0';X.fillText('BOSS YIKILDI!',W()/2,H()/2);X.shadowBlur=0;}
   }
-
-  // combo
   if(combo>=2&&cTimer>0){X.globalAlpha=Math.min(1,cTimer/25);X.fillStyle='#ff0';X.font='bold '+Math.floor(W()/22)+'px Courier New';X.textAlign='right';X.fillText('COMBO x'+combo,W()-8,20);X.globalAlpha=1;}
-
-  // HUD icons
   X.textAlign='left';X.font=Math.floor(W()/36)+'px Courier New';var hx=8;
   if(rTimer>0){X.fillStyle='#ff0';X.fillText('⚡',hx,H()-8);hx+=20;}
   if(xTimer>0){X.fillStyle='#0f0';X.fillText('✦',hx,H()-8);hx+=20;}
   if(P.shld>0){X.fillStyle='#0ff';X.fillText('🛡',hx,H()-8);hx+=20;}
   if(rocketReady){X.fillStyle='#f90';X.shadowBlur=6;X.shadowColor='#f90';X.fillText('🚀',hx,H()-8);X.shadowBlur=0;}
-
   drawCRT();
 }
 
 // ── LOOP ──────────────────────────────────────────────────────────
 function loop(){update();draw();requestAnimationFrame(loop);}
-
 function go(){
   if(state==='start'){state='play';phase='idle';startMusic();}
   else if(state==='dead'){resetAll();state='play';}
