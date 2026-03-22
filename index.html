@@ -22,6 +22,15 @@ canvas{display:block;touch-action:none;image-rendering:pixelated;}
 #jKnob{width:44px;height:44px;border-radius:50%;background:rgba(0,255,255,.28);border:2px solid #0ff;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
 #fireBtn{width:78px;height:78px;border-radius:50%;background:rgba(255,50,50,.2);border:2px solid #f55;color:#f55;font-size:24px;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:center;}
 #fireBtn:active{background:rgba(255,50,50,.45);}
+#bossAbilities{display:none;flex-direction:column;gap:5px;align-items:center;}
+.abilityBtn{width:58px;height:58px;border-radius:10px;font-size:20px;cursor:pointer;user-select:none;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;border:2px solid;transition:opacity 0.2s;}
+.abilityBtn span{font-size:8px;margin-top:1px;font-family:'Courier New',monospace;}
+#shieldBtn{background:rgba(0,255,255,.15);border-color:#0ff;color:#0ff;}
+#shieldBtn:active{background:rgba(0,255,255,.4);}
+#rocketBtn{background:rgba(255,150,0,.15);border-color:#f90;color:#f90;}
+#rocketBtn:active{background:rgba(255,150,0,.4);}
+.abilityBtn.cooling{opacity:0.45;}
+.abilityBtn .cdRing{position:absolute;top:0;left:0;width:100%;height:100%;border-radius:10px;pointer-events:none;}
 </style>
 </head>
 <body>
@@ -34,6 +43,10 @@ canvas{display:block;touch-action:none;image-rendering:pixelated;}
 <canvas id="c"></canvas>
 <div id="controls">
   <div id="jWrap"><div id="jBase"></div><div id="jKnob"></div></div>
+  <div id="bossAbilities">
+    <button class="abilityBtn" id="shieldBtn">🛡<span id="shieldCdTxt">HAZIR</span></button>
+    <button class="abilityBtn" id="rocketBtn">🚀<span id="rocketCdTxt">HAZIR</span></button>
+  </div>
   <button id="fireBtn">🔥</button>
 </div>
 <script>
@@ -114,7 +127,46 @@ function startMusic(){
   }catch(e){}
 }
 
-// ── JOYSTICK ─────────────────────────────────────────────────────
+// ── BOSS ABILITIES ───────────────────────────────────────────────
+var shieldCd=0,rocketCdA=0;
+var SHIELD_CD=300,ROCKET_CD_A=300; // 5 saniye = 300 frame @ 60fps
+var SB=document.getElementById('shieldBtn');
+var RB=document.getElementById('rocketBtn');
+var BA=document.getElementById('bossAbilities');
+function showBossAbilities(show){
+  BA.style.display=show?'flex':'none';
+}
+function updateAbilityBtns(){
+  var st=document.getElementById('shieldCdTxt');
+  var rt=document.getElementById('rocketCdTxt');
+  if(shieldCd>0){
+    SB.classList.add('cooling');
+    st.textContent=Math.ceil(shieldCd/60)+'s';
+  }else{
+    SB.classList.remove('cooling');
+    st.textContent='HAZIR';
+  }
+  if(rocketCdA>0){
+    RB.classList.add('cooling');
+    rt.textContent=Math.ceil(rocketCdA/60)+'s';
+  }else{
+    RB.classList.remove('cooling');
+    rt.textContent='HAZIR';
+  }
+}
+SB.addEventListener('touchstart',function(e){e.preventDefault();e.stopPropagation();useShieldAbility();},{passive:false});
+SB.addEventListener('mousedown',function(e){e.preventDefault();useShieldAbility();});
+RB.addEventListener('touchstart',function(e){e.preventDefault();e.stopPropagation();useRocketAbility();},{passive:false});
+RB.addEventListener('mousedown',function(e){e.preventDefault();useRocketAbility();});
+function useShieldAbility(){
+  if(shieldCd>0||state!=='play')return;
+  P.shld=400;shieldCd=SHIELD_CD;
+  burst(P.x,P.y,'#0ff',10);ft(P.x,P.y-30,'KALKAN!','#0ff');sPU();
+}
+function useRocketAbility(){
+  if(rocketCdA>0||state!=='play')return;
+  doBomb();rocketCdA=ROCKET_CD_A;
+}
 var JB=document.getElementById('jBase'),JK=document.getElementById('jKnob');
 var jOn=false,jId=null,jOx=0,jOy=0;
 var K={l:false,r:false,u:false,d:false,f:false};
@@ -915,6 +967,8 @@ function resetAll(){
   winTimer=0;winParts=[];
   bullets=[];eBullets=[];enemies=[];parts=[];pups=[];floats=[];rockets=[];spawnQueue=[];spawnTimer=0;pendingGroups=[];meteors=[];
   boss=null;bDir=1;sCool=0;rTimer=0;xTimer=0;rocketReady=0;
+  shieldCd=0;rocketCdA=0;
+  showBossAbilities(false);
   paused=false;PB.textContent='⏸';
   resetP();
 }
@@ -972,6 +1026,12 @@ function update(){
   }
   if(sCool>0)sCool--;if(rTimer>0)rTimer--;if(xTimer>0)xTimer--;
   if(P.inv>0)P.inv--;if(P.shld>0)P.shld--;if(cTimer>0)cTimer--;else combo=0;
+  if(shieldCd>0)shieldCd--;
+  if(rocketCdA>0)rocketCdA--;
+  // Son boss ise ability butonlarını göster
+  var isFinalBoss=(phase==='bossPlaying'||phase==='bossExploding')&&wave===15;
+  showBossAbilities(isFinalBoss);
+  if(isFinalBoss)updateAbilityBtns();
   // Önce hareket ettir
   for(var i=0;i<bullets.length;i++){bullets[i].x+=bullets[i].vx;bullets[i].y+=bullets[i].vy;}
   for(var i=0;i<eBullets.length;i++){eBullets[i].x+=eBullets[i].vx;eBullets[i].y+=eBullets[i].vy;}
