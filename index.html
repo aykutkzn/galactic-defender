@@ -848,7 +848,20 @@ function updateRockets(){
     if(rk.y<30)hit=true;
     if(hit){
       rk.exploded=true;var rad=75;
-      for(var j=enemies.length-1;j>=0;j--)if(Math.hypot(enemies[j].x-rk.x,enemies[j].y-rk.y)<rad){ring(enemies[j].x,enemies[j].y,enemies[j].col);score+=enemies[j].pts;enemies.splice(j,1);}
+      for(var j=enemies.length-1;j>=0;j--){
+        if(Math.hypot(enemies[j].x-rk.x,enemies[j].y-rk.y)<rad){
+          var e2=enemies[j];
+          if(e2.type==='A'){
+            // A tipi: anında ölür
+            ring(e2.x,e2.y,e2.col);score+=e2.pts;enemies.splice(j,1);
+          }else{
+            // Diğer tipler: büyük hasar ama ölmez
+            var dmg=Math.max(1,Math.floor(e2.maxHp*0.6));
+            e2.hp-=dmg;burst(e2.x,e2.y,e2.col,5);
+            if(e2.hp<=0){ring(e2.x,e2.y,e2.col);score+=e2.pts;enemies.splice(j,1);}
+          }
+        }
+      }
       if(boss&&Math.hypot(boss.x-rk.x,boss.y-rk.y)<rad+30){boss.hp-=Math.ceil(boss.mhp*.15);if(boss.hp<=0){var pts=1200+wave*150;score+=pts;bossExplode(boss.x,boss.y,boss.col);sBossDead();ft(boss.x,boss.y,'BOSS +'+pts,'#ff0');boss=null;}else burst(boss.x,boss.y,'#f90',10);}
       for(var k=0;k<3;k++)ring(rk.x+(Math.random()-.5)*40,rk.y+(Math.random()-.5)*40,'#f90');
       sPop(true);ft(rk.x,rk.y,'BOOM!','#f90');
@@ -976,6 +989,10 @@ function resetAll(){
   updateAbilityBtns();
   paused=false;PB.textContent='⏸';
   resetP();
+  // UI'yı hemen sıfırla
+  document.getElementById('sEl').textContent='0';
+  document.getElementById('wEl').textContent='1/15';
+  document.getElementById('lEl').textContent='❤️❤️❤️';
 }
 
 // ── UPDATE ────────────────────────────────────────────────────────
@@ -1006,7 +1023,7 @@ function update(){
     if(phTimer<=0){
       wave++;
       if(wave>MAX_WAVE){state='win';winTimer=0;winParts=[];if(score>highScore)highScore=score;sWin();return;}
-      if(lives<3){lives++;ft(W()/2,H()/2-40,'+1 CAN! ❤️','#f55');}
+      if(lives<3){lives++;}
       bullets=[];eBullets=[];xTimer=0;resetP();
       waveFlash=150;phase='waveIn';phTimer=170; // flash + biraz bekleme
     }
@@ -1519,13 +1536,20 @@ function draw(){
   X.globalAlpha=1;
   if(phase!=='bossExploding'&&(P.inv<=0||Math.floor(P.inv/6)%2===0))drawShip();
   if(phase==='countdown'){
-    X.fillStyle='rgba(0,0,0,.5)';X.fillRect(0,0,cw,ch);X.textAlign='center';
-    X.fillStyle='#ff0';X.font='bold '+Math.floor(cw/4)+'px Courier New';X.shadowBlur=24;X.shadowColor='#ff0';X.fillText(cdN>0?cdN:'GO!',cw/2,ch/2+20);X.shadowBlur=0;
-    X.fillStyle='#aff';X.font=Math.floor(cw/26)+'px Courier New';
+    X.fillStyle='rgba(0,0,0,.45)';X.fillRect(0,0,cw,ch);X.textAlign='center';
+    X.fillStyle='#ff0';X.font='bold '+Math.floor(cw/4)+'px Courier New';
+    X.shadowBlur=24;X.shadowColor='#ff0';
+    X.fillText(cdN>0?cdN:'GO!',cw/2,ch/2+20);X.shadowBlur=0;
     var isBoss=(WAVE_DEFS[Math.min(wave-1,WAVE_DEFS.length-1)]||{}).boss;
-    X.fillText('DALGA '+wave+'/'+MAX_WAVE+(isBoss?' — BOSS!':''),cw/2,ch/2-50);
-    if(isBoss&&cdN>0){var bc=getBoss(wave);X.fillStyle=bc.col;X.font='bold '+Math.floor(cw/20)+'px Courier New';X.shadowBlur=10;X.shadowColor=bc.col;X.fillText('⚠ '+bc.name+' ⚠',cw/2,ch/2+78);X.shadowBlur=0;}
-    else if(cdN>0){X.fillStyle='#f55';X.font=Math.floor(cw/32)+'px Courier New';X.fillText('❤️ +1 Can!',cw/2,ch/2+78);}
+    if(isBoss&&cdN>0){
+      var bc=getBoss(wave);X.fillStyle=bc.col;
+      X.font='bold '+Math.floor(cw/20)+'px Courier New';
+      X.shadowBlur=10;X.shadowColor=bc.col;
+      X.fillText('⚠ '+bc.name+' ⚠',cw/2,ch/2+78);X.shadowBlur=0;
+    }else if(cdN>0&&lives<4){
+      X.fillStyle='#f55';X.font=Math.floor(cw/32)+'px Courier New';
+      X.fillText('❤️ +1 Can!',cw/2,ch/2+78);
+    }
   }
   // ── WAVE FLASH ── retro glitch geçiş
   if(waveFlash>0){
