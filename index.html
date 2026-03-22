@@ -360,6 +360,15 @@ var BOSSES=[
   {name:'CRUSHER',col:'#f0f',hp:60,design:'spider', pattern:'wave'},
   {name:'NEMESIS',col:'#ff0',hp:55,design:'vortex', pattern:'cross'},
 ];
+var OMEGA={name:'OMEGA',col:'#f00',hp:70,design:'omega',pattern:'omega'};
+var omegaScene=0; // 0=yok 1=sahne oynanıyor 2=boss geliyor
+var omegaT=0;
+function sOmega(){
+  // Uğultulu derin ses
+  for(var i=0;i<5;i++)(function(ii){
+    setTimeout(function(){tn(30+ii*8,.6,1.2,'sawtooth');},ii*200);
+  })(i);
+}
 function getBoss(w){
   var idx=w<=5?0:w<=10?1:2;
   var b=BOSSES[idx],tier=Math.ceil(w/5);
@@ -603,6 +612,26 @@ function drawBossSprite(bx,by,cfg_or_boss,scale){
     var ep=[[-2,-1],[0,-2],[2,-1],[-1,1],[1,1]];
     for(var i=0;i<ep.length;i++)pr(bx+ep[i][0]*p,by+ep[i][1]*p,p,p,(fl&&i%2===0)?'#fff':'#ffe000');
     X.shadowBlur=0;
+  }else if(design==='omega'){
+    var rot2=(cfg_or_boss.rot||0);
+    X.save();X.translate(bx,by);X.rotate(rot2*1.5);
+    X.strokeStyle=col;X.lineWidth=p*1.2;X.shadowBlur=16;X.shadowColor=col;
+    X.beginPath();X.arc(0,0,p*8,0,Math.PI*2);X.stroke();
+    X.lineWidth=p*0.5;X.globalAlpha=0.5;
+    X.beginPath();X.arc(0,0,p*10,0,Math.PI*2);X.stroke();
+    X.globalAlpha=1;X.shadowBlur=0;
+    for(var i=0;i<4;i++){var sa=i*(Math.PI/2);pr(Math.cos(sa)*p*8-p,Math.sin(sa)*p*8-p,p*2,p*2,col);}
+    X.restore();
+    pr(bx-p*4,by-p*5,p*8,p*10,col);pr(bx-p*6,by-p*2,p*12,p*5,col);
+    pr(bx-p*3,by-p*5,p*6,p,ca(col,0.5));
+    pr(bx-p*3,by-p*3,p*2,p*2,'#000');pr(bx+p,by-p*3,p*2,p*2,'#000');
+    pr(bx-p*2,by-p*3,p*2,p*2,fl?'#fff':'#f55');pr(bx+p,by-p*3,p*2,p*2,fl?'#f55':'#fff');
+    pr(bx-p/2,by-p,p,p,'#000');
+    pr(bx-p*3,by,p,p,col);pr(bx-p,by,p,p,'#000');pr(bx,by,p,p,col);pr(bx+p,by,p,p,'#000');pr(bx+p*2,by,p,p,col);
+    pr(bx-p*8,by-p,p*2,p*3,col);pr(bx+p*6,by-p,p*2,p*3,col);
+    pr(bx-p*9,by,p,p*2,col);pr(bx+p*8,by,p,p*2,col);
+    pr(bx-p*3,by+p*5,p*2,p*3,fl?'#fff':'#f55');pr(bx+p,by+p*5,p*2,p*3,fl?'#f55':'#fff');
+    pr(bx-p*2,by+p*8,p,p*2,fl?'#f80':'#ff0');pr(bx+p,by+p*8,p,p*2,fl?'#ff0':'#f80');
   }else{
     var rot=(cfg_or_boss.rot||0);
     X.save();X.translate(bx,by);X.rotate(rot*2);
@@ -820,6 +849,32 @@ function bossShoot(){
   if(ph<.66&&boss.ph===1){boss.ph=2;ft(boss.x,boss.y-28,'PHASE 2!',boss.col);ring(boss.x,boss.y,boss.col);sBossPhase();}
   if(ph<.33&&boss.ph===2){boss.ph=3;ft(boss.x,boss.y-28,'PHASE 3!','#f55');ring(boss.x,boss.y,'#f55');sBossPhase();}
 }
+function bossShootOmega(){
+  if(!boss||boss.entering||boss.st>0){if(boss&&boss.st>0)boss.st--;return;}
+  var ph=boss.hp/boss.mhp;
+  var ang=Math.atan2(P.y-boss.y,P.x-boss.x);
+  boss.sc=(boss.sc||0)+1;
+  boss.omegaAng=(boss.omegaAng||0)+0.22;
+  var oSpd=ph>.5?1.6:2.0;
+  for(var i=0;i<3;i++){
+    var oa=boss.omegaAng+i*(Math.PI*2/3);
+    if(Math.sin(oa)>-0.2)
+      eBullets.push({x:boss.x,y:boss.y,vx:Math.cos(oa)*oSpd,vy:Math.sin(oa)*oSpd,r:true,bt:'spiral',bc:'#f00',rot:oa});
+  }
+  if(boss.sc%6===0){
+    eBullets.push({x:boss.x,y:boss.y+boss.h/2,vx:Math.cos(ang)*oSpd,vy:Math.sin(ang)*oSpd,r:true,bt:'cross_aimed',bc:'#f00'});
+  }
+  if(ph<.5){
+    var diags2=[Math.PI/4,Math.PI*3/4,Math.PI*5/4,Math.PI*7/4];
+    for(var i=0;i<diags2.length;i++){
+      var oa2=diags2[i]+boss.omegaAng*0.5;
+      eBullets.push({x:boss.x,y:boss.y,vx:Math.cos(oa2)*oSpd*0.8,vy:Math.sin(oa2)*oSpd*0.8,r:true,bt:'cross',bc:'#f55',rot:oa2});
+    }
+  }
+  if(ph<.66&&boss.ph===1){boss.ph=2;ft(boss.x,boss.y-28,'PHASE 2!','#f00');ring(boss.x,boss.y,'#f00');sBossPhase();}
+  if(ph<.33&&boss.ph===2){boss.ph=3;ft(boss.x,boss.y-28,'PHASE 3!','#f88');ring(boss.x,boss.y,'#f88');sBossPhase();}
+  boss.st=ph>.5?38:25;
+}
 function updateLaser(){
   if(!boss||!boss.la)return;boss.lt--;
   if(boss.lt<=0){boss.la=false;return;}
@@ -980,6 +1035,7 @@ function drawWinScreen(){
 // ── RESET ─────────────────────────────────────────────────────────
 function resetAll(){
   score=0;lives=3;wave=1;combo=0;cTimer=0;warpT=0;launchT=0;waveFlash=0;
+  omegaScene=0;omegaT=0;
   phase='idle';phTimer=0;cdN=0;
   introActive=false;introT=0;introCfg=null;
   winTimer=0;winParts=[];
@@ -1038,7 +1094,32 @@ function update(){
   if(phase==='bossExploding'){
     for(var i=parts.length-1;i>=0;i--){var p=parts[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.04;p.life--;if(p.life<=0)parts.splice(i,1);}
     for(var i=floats.length-1;i>=0;i--){var f=floats[i];f.y+=f.vy;f.life--;if(f.life<=0)floats.splice(i,1);}
-    if(parts.length===0&&floats.length===0){phase='clearing';phTimer=60;}
+    if(parts.length===0&&floats.length===0){
+      if(omegaScene===1){phase='omegaScene';}
+      else if(omegaScene===3){
+        // OMEGA yenildi, gerçek win
+        if(score>highScore)highScore=score;
+        state='win';winTimer=0;winParts=[];sWin();
+      }
+      else{phase='clearing';phTimer=180;}
+    }
+    return;
+  }
+  if(phase==='omegaScene'){
+    omegaT--;
+    if(omegaT===200)sOmega();
+    if(omegaT<=0){
+      omegaScene=2;
+      if(lives<3){lives++;}
+      ft(W()/2,H()/2,'+1 CAN! SON ŞANS!','#f55');
+      eBullets=[];bullets=[];pups=[];
+      boss={name:OMEGA.name,col:OMEGA.col,hp:OMEGA.hp,mhp:OMEGA.hp,
+        design:'omega',pattern:'omega',
+        x:W()/2,y:-90,w:80,h:60,
+        st:60,sa:0,lc:0,la:false,lx:0,lt:0,ph:1,rot:0,
+        entering:true,webTimer:0,tick:0,sc:0,omegaAng:0};
+      bDir=1;phase='bossPlaying';
+    }
     return;
   }
   if(warpT>0){warpT--;for(var i=0;i<stars.length;i++)stars[i].sp=20;return;}
@@ -1088,10 +1169,28 @@ function update(){
     var bSpd=0.55+Math.floor(wave/5)*0.15; // çok daha yavaş
     boss.x+=bDir*bSpd;
     if(boss.x>W()-boss.w/2||boss.x<boss.w/2)bDir*=-1;
-    bossShoot();updateLaser();
+    if(boss.pattern==='omega'){bossShootOmega();}else{bossShoot();}updateLaser();
     for(var i=bullets.length-1;i>=0;i--){var b=bullets[i];
       if(Math.abs(b.x-boss.x)<boss.w/2&&Math.abs(b.y-boss.y)<boss.h/2){boss.hp--;bullets.splice(i,1);burst(b.x,b.y,boss.col,4);
-        if(boss.hp<=0){var pts=1200+wave*150;score+=pts;bossExplode(boss.x,boss.y,boss.col);sBossDead();ft(boss.x,boss.y,'BOSS +'+pts,'#ff0');boss=null;}}}
+        if(boss.hp<=0){
+          var pts=1200+wave*150;score+=pts;
+          // Wave 15 NEMESIS ölünce OMEGA sahnesi
+          if(wave===15&&boss.name==='NEMESIS'&&omegaScene===0){
+            bossExplode(boss.x,boss.y,boss.col);sBossDead();
+            ft(boss.x,boss.y,'BOSS +'+pts,'#ff0');boss=null;
+            omegaScene=1;omegaT=240;
+          }else if(boss.name==='OMEGA'){
+            // OMEGA öldü — gerçek final!
+            bossExplode(boss.x,boss.y,boss.col);sBossDead();
+            ft(boss.x,boss.y,'OMEGA +'+pts,'#f00');boss=null;
+            omegaScene=3; // bitti işareti
+          }else{
+            bossExplode(boss.x,boss.y,boss.col);sBossDead();
+            ft(boss.x,boss.y,'BOSS +'+pts,'#ff0');boss=null;
+          }
+        }
+      }
+    }
   }
   outer:for(var i=bullets.length-1;i>=0;i--){var b=bullets[i];
     for(var j=enemies.length-1;j>=0;j--){var e=enemies[j];
@@ -1248,7 +1347,56 @@ function draw(){
     drawCRT();return;
   }
   if(state==='win'){drawWinScreen();return;}
-  if(phase==='bossIntro'){drawBossIntroScreen();return;}
+  if(phase==='omegaScene'){
+    // Karanlık kırmızı sinematik sahne
+    X.fillStyle='#000';X.fillRect(0,0,cw,ch);
+    drawStars();
+    var op=omegaT/240;
+    var px5=PX();
+    // Kırmızı overlay titreşim
+    X.fillStyle='rgba(80,0,0,'+(0.3+0.2*Math.sin(Date.now()/80))+')';X.fillRect(0,0,cw,ch);
+    // CRT tarama
+    X.globalAlpha=0.06;X.fillStyle='#f00';
+    for(var sy=0;sy<ch;sy+=3)X.fillRect(0,sy,cw,1);
+    X.globalAlpha=1;
+    // Ekran titremesi
+    var shake=(omegaT>200)?Math.floor(Math.random()*4)-2:0;
+    X.save();X.translate(shake,shake);
+    // Mesaj
+    X.textAlign='center';
+    if(omegaT>160){
+      var a1=Math.min(1,(240-omegaT)/40);
+      X.globalAlpha=a1;
+      X.fillStyle='#f00';X.font='bold '+Math.floor(cw/12)+'px Courier New';
+      X.shadowBlur=20;X.shadowColor='#f00';
+      X.fillText('BU HENÜZ',cw/2,ch*0.35);
+      X.fillText('BİTMEDİ...',cw/2,ch*0.48);
+      X.shadowBlur=0;X.globalAlpha=1;
+    }else if(omegaT>60){
+      var a2=Math.min(1,(160-omegaT)/30);
+      X.globalAlpha=a2;
+      X.fillStyle='#fff';X.font='bold '+Math.floor(cw/16)+'px Courier New';
+      X.fillText('KARANLIKTAN',cw/2,ch*0.38);
+      X.fillStyle='#f00';X.font='bold '+Math.floor(cw/10)+'px Courier New';
+      X.shadowBlur=25;X.shadowColor='#f00';
+      X.fillText('OMEGA',cw/2,ch*0.52);
+      X.shadowBlur=0;
+      X.fillStyle='#f88';X.font=Math.floor(cw/28)+'px Courier New';
+      X.fillText('UYANDIIII !',cw/2,ch*0.62);
+      X.globalAlpha=1;
+    }else{
+      // Son anlarda ekran kararıp açılır
+      var fadeOut=omegaT/60;
+      X.globalAlpha=fadeOut;
+      X.fillStyle='#f00';X.font='bold '+Math.floor(cw/10)+'px Courier New';
+      X.shadowBlur=30;X.shadowColor='#f00';
+      X.fillText('OMEGA',cw/2,ch*0.5);
+      X.shadowBlur=0;X.globalAlpha=1;
+    }
+    X.restore();
+    drawCRT();
+    return;
+  }
 
   // ── LAUNCH — gemi gezegenden havalanıyor ──────────────────────
   if(phase==='launch'){
