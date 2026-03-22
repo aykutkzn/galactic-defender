@@ -196,8 +196,12 @@ function handleCanvasTap(cx,cy){
     var cols=['red','blue','green'];
     for(var i=0;i<3;i++){
       var sx=W()/4*(i+1);
-      if(Math.abs(x-sx)<20&&Math.abs(y-shipY2)<24){shipColor=cols[i];}
+      if(Math.abs(x-sx)<28&&Math.abs(y-shipY2)<30){shipColor=cols[i];}
     }
+  }
+  if(state==='dead'){
+    if(y>H()*0.80&&y<H()*0.90){resetAll();state='play';}
+    if(y>H()*0.88&&y<H()*0.98){resetAll();state='start';}
   }
   if(state==='win'){
     var menuDelay2=WIN_LINES[WIN_LINES.length-1].delay+80;
@@ -1131,7 +1135,7 @@ function draw(){
     y+=bh+lh*0.6;
     // Gemi seçimi — küçük, müzik butonunun altında
     X.fillStyle='#888';X.font=Math.floor(cw/38)+'px Courier New';
-    X.fillText('── GEMİ SEÇ ──',cw/2,y);y+=lh*0.8;
+    X.fillText('── GEMİ SEÇ ──',cw/2,y);y+=lh*1.2;
     var shipCols=['red','blue','green'];
     var shipLabels=['K','M','Y'];
     var shipColors2=['#f55','#4af','#4c8'];
@@ -1176,37 +1180,40 @@ function draw(){
     // GAME OVER
     X.fillStyle='#f44';X.font='bold '+Math.floor(cw/8)+'px Courier New';
     X.shadowBlur=20;X.shadowColor='#f00';
-    X.fillText('GAME',cw/2,ch*0.25);
-    X.fillText('OVER',cw/2,ch*0.38);
+    X.fillText('GAME',cw/2,ch*0.22);
+    X.fillText('OVER',cw/2,ch*0.35);
     X.shadowBlur=0;
     // Ayraç
-    X.fillStyle='#500';X.fillRect(cw*0.1,ch*0.42,cw*0.8,1);
+    X.fillStyle='#500';X.fillRect(cw*0.1,ch*0.39,cw*0.8,1);
     // Dalga bilgisi
     X.fillStyle='#f88';X.font=Math.floor(cw/28)+'px Courier New';
-    X.fillText('DALGA '+wave+' / '+MAX_WAVE,cw/2,ch*0.50);
+    X.fillText('DALGA '+wave+' / '+MAX_WAVE,cw/2,ch*0.46);
     // Skor
     X.fillStyle='#aaa';X.font=Math.floor(cw/30)+'px Courier New';
-    X.fillText('SKOR',cw/2,ch*0.59);
+    X.fillText('SKOR',cw/2,ch*0.54);
     X.fillStyle='#fff';X.font='bold '+Math.floor(cw/14)+'px Courier New';
     X.shadowBlur=8;X.shadowColor='#f55';
-    X.fillText(score.toLocaleString(),cw/2,ch*0.70);
+    X.fillText(score.toLocaleString(),cw/2,ch*0.64);
     X.shadowBlur=0;
+    // Yüksek skor / yeni rekor
     if(highScore>0&&score>=highScore&&score>0){
       X.fillStyle='#ff0';X.font='bold '+Math.floor(cw/28)+'px Courier New';
       X.shadowBlur=8;X.shadowColor='#ff0';
-      X.fillText('⭐ YENİ REKOR!',cw/2,ch*0.77);X.shadowBlur=0;
+      X.fillText('⭐ YENİ REKOR!',cw/2,ch*0.72);X.shadowBlur=0;
     }else if(highScore>0){
-      X.fillStyle='#888';X.font=Math.floor(cw/32)+'px Courier New';
-      X.fillText('EN YÜKSEK: '+highScore.toLocaleString(),cw/2,ch*0.77);
+      X.fillStyle='#888';X.font=Math.floor(cw/34)+'px Courier New';
+      X.fillText('EN YÜKSEK: '+highScore.toLocaleString(),cw/2,ch*0.72);
     }
     // Ayraç
-    X.fillStyle='#500';X.fillRect(cw*0.1,ch*0.75,cw*0.8,1);
-    // Tekrar butonu
+    X.fillStyle='#500';X.fillRect(cw*0.1,ch*0.77,cw*0.8,1);
+    // Butonlar
     var blink2=Math.floor(Date.now()/500)%2===0;
-    X.fillStyle=blink2?'#0ff':'#446';X.font='bold '+Math.floor(cw/24)+'px Courier New';
+    X.fillStyle=blink2?'#0ff':'#446';X.font='bold '+Math.floor(cw/26)+'px Courier New';
     X.shadowBlur=blink2?8:0;X.shadowColor='#0ff';
-    X.fillText('[ 🔥 TEKRAR ]',cw/2,ch*0.88);
+    X.fillText('[ 🔥 TEKRAR ]',cw/2,ch*0.85);
     X.shadowBlur=0;
+    X.fillStyle='#555';X.font=Math.floor(cw/32)+'px Courier New';
+    X.fillText('[ ANA MENÜ ]',cw/2,ch*0.93);
     drawCRT();return;
   }
   if(state==='win'){drawWinScreen();return;}
