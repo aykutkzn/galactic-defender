@@ -1,4 +1,5 @@
 {
+  "display_override": ["fullscreen", "standalone"]
   "name": "Galactic Defender",
   "short_name": "GalacticDef",
   "description": "Retro pixel art uzay nişancı oyunu",
