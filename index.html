@@ -393,9 +393,9 @@ function queueRows(rows,w,baseDelay){
       spawnQueue.push({
         delay:delay,sx:sx,sy:sy,tx:tx,ty:ty,
         type:row.t,col:et.col,pts:et.pts,mv:et.mv,
-        hp:et.hp+Math.floor((w-1)/3),
-        brate:Math.max(80,et.brate-w*2),
-        bspd:Math.min(1.6,et.bspd+w*.02)
+        hp:et.hp+Math.floor((w-1)/4),  // daha yavaş HP artışı
+        brate:Math.max(100,et.brate-w*1.5), // daha yavaş ateş hızı artışı
+        bspd:Math.min(1.4,et.bspd+w*.015)   // daha yavaş mermi hızı artışı
       });
       delay+=40+Math.random()*25;
     }
@@ -817,7 +817,7 @@ function updateRockets(){
     if(hit){
       rk.exploded=true;var rad=75;
       for(var j=enemies.length-1;j>=0;j--)if(Math.hypot(enemies[j].x-rk.x,enemies[j].y-rk.y)<rad){ring(enemies[j].x,enemies[j].y,enemies[j].col);score+=enemies[j].pts;enemies.splice(j,1);}
-      if(boss&&Math.hypot(boss.x-rk.x,boss.y-rk.y)<rad+30){boss.hp-=Math.ceil(boss.mhp*.15);if(boss.hp<=0){var pts=600+wave*80;score+=pts;bossExplode(boss.x,boss.y,boss.col);sBossDead();ft(boss.x,boss.y,'BOSS +'+pts,'#ff0');boss=null;}else burst(boss.x,boss.y,'#f90',10);}
+      if(boss&&Math.hypot(boss.x-rk.x,boss.y-rk.y)<rad+30){boss.hp-=Math.ceil(boss.mhp*.15);if(boss.hp<=0){var pts=1200+wave*150;score+=pts;bossExplode(boss.x,boss.y,boss.col);sBossDead();ft(boss.x,boss.y,'BOSS +'+pts,'#ff0');boss=null;}else burst(boss.x,boss.y,'#f90',10);}
       for(var k=0;k<3;k++)ring(rk.x+(Math.random()-.5)*40,rk.y+(Math.random()-.5)*40,'#f90');
       sPop(true);ft(rk.x,rk.y,'BOOM!','#f90');
     }
@@ -970,7 +970,7 @@ function update(){
   if(phase==='bossIntro'){introT--;if(introT<=0){spawnBoss();}return;}
   if(phase==='clearing'){
     phTimer--;
-    if(phTimer===25)warpT=13;
+    if(phTimer===40)warpT=13;
     if(phTimer<=0){
       wave++;
       if(wave>MAX_WAVE){state='win';winTimer=0;winParts=[];sWin();return;}
@@ -1028,12 +1028,13 @@ function update(){
   }
   if(boss&&boss.entering){boss.y+=1.5;if(boss.y>=82)boss.entering=false;return;}
   if(boss){
-    boss.x+=bDir*(.9+Math.floor(wave/5)*.1);
+    var bSpd=0.55+Math.floor(wave/5)*0.15; // çok daha yavaş
+    boss.x+=bDir*bSpd;
     if(boss.x>W()-boss.w/2||boss.x<boss.w/2)bDir*=-1;
     bossShoot();updateLaser();
     for(var i=bullets.length-1;i>=0;i--){var b=bullets[i];
       if(Math.abs(b.x-boss.x)<boss.w/2&&Math.abs(b.y-boss.y)<boss.h/2){boss.hp--;bullets.splice(i,1);burst(b.x,b.y,boss.col,4);
-        if(boss.hp<=0){var pts=600+wave*80;score+=pts;bossExplode(boss.x,boss.y,boss.col);sBossDead();ft(boss.x,boss.y,'BOSS +'+pts,'#ff0');boss=null;}}}
+        if(boss.hp<=0){var pts=1200+wave*150;score+=pts;bossExplode(boss.x,boss.y,boss.col);sBossDead();ft(boss.x,boss.y,'BOSS +'+pts,'#ff0');boss=null;}}}
   }
   outer:for(var i=bullets.length-1;i>=0;i--){var b=bullets[i];
     for(var j=enemies.length-1;j>=0;j--){var e=enemies[j];
@@ -1058,7 +1059,7 @@ function update(){
   processSpawnQueue();
   for(var i=parts.length-1;i>=0;i--){var p=parts[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.04;p.life--;if(p.life<=0)parts.splice(i,1);}
   for(var i=floats.length-1;i>=0;i--){var f=floats[i];f.y+=f.vy;f.life--;if(f.life<=0)floats.splice(i,1);}
-  if(enemies.length===0&&spawnQueue.length===0&&pendingGroups.length===0&&!boss&&(phase==='playing'||phase==='bossPlaying')){phase='clearing';phTimer=60;}
+  if(enemies.length===0&&spawnQueue.length===0&&pendingGroups.length===0&&!boss&&(phase==='playing'||phase==='bossPlaying')){phase='clearing';phTimer=120;}
   document.getElementById('sEl').textContent=score;
   document.getElementById('wEl').textContent=wave+'/'+MAX_WAVE;
   document.getElementById('lEl').textContent='❤️'.repeat(Math.max(0,lives));
@@ -1089,10 +1090,45 @@ function draw(){
   }
   if(state==='dead'){
     drawStars();
+    X.fillStyle='rgba(0,0,0,0.78)';X.fillRect(0,0,cw,ch);
+    // Tarama çizgileri
+    X.globalAlpha=0.04;X.fillStyle='#f00';
+    for(var y=0;y<ch;y+=3)X.fillRect(0,y,cw,1);
+    X.globalAlpha=1;
     X.textAlign='center';
-    X.fillStyle='#f44';X.font='bold '+Math.floor(cw/9)+'px Courier New';X.shadowBlur=14;X.shadowColor='#f44';X.fillText('GAME OVER',cw/2,ch*.32);X.shadowBlur=0;
-    X.fillStyle='#fff';X.font='bold '+Math.floor(cw/22)+'px Courier New';X.fillText('SKOR: '+score,cw/2,ch*.46);
-    X.fillStyle='#0ff';X.font=Math.floor(cw/26)+'px Courier New';X.shadowBlur=8;X.shadowColor='#0ff';X.fillText('🔥 bas tekrar',cw/2,ch*.88);X.shadowBlur=0;
+    // Çerçeve kırmızı
+    var px3=PX();
+    X.strokeStyle='rgba(255,50,50,0.6)';X.lineWidth=px3*0.4;X.strokeRect(px3*3,px3*3,cw-px3*6,ch-px3*6);
+    var cb2=px3*8;X.strokeStyle='#f55';X.lineWidth=px3*0.8;
+    [[0,0,1,0,0,1],[cw,0,-1,0,0,1],[0,ch,1,0,0,-1],[cw,ch,-1,0,0,-1]].forEach(function(c){
+      X.beginPath();X.moveTo(c[0]+c[2]*cb2,c[1]);X.lineTo(c[0],c[1]);X.lineTo(c[0],c[1]+c[5]*cb2);X.stroke();
+    });
+    // GAME OVER
+    X.fillStyle='#f44';X.font='bold '+Math.floor(cw/8)+'px Courier New';
+    X.shadowBlur=20;X.shadowColor='#f00';
+    X.fillText('GAME',cw/2,ch*0.25);
+    X.fillText('OVER',cw/2,ch*0.38);
+    X.shadowBlur=0;
+    // Ayraç
+    X.fillStyle='#500';X.fillRect(cw*0.1,ch*0.42,cw*0.8,1);
+    // Dalga bilgisi
+    X.fillStyle='#f88';X.font=Math.floor(cw/28)+'px Courier New';
+    X.fillText('DALGA '+wave+' / '+MAX_WAVE,cw/2,ch*0.50);
+    // Skor
+    X.fillStyle='#aaa';X.font=Math.floor(cw/30)+'px Courier New';
+    X.fillText('SKOR',cw/2,ch*0.59);
+    X.fillStyle='#fff';X.font='bold '+Math.floor(cw/14)+'px Courier New';
+    X.shadowBlur=8;X.shadowColor='#f55';
+    X.fillText(score.toLocaleString(),cw/2,ch*0.70);
+    X.shadowBlur=0;
+    // Ayraç
+    X.fillStyle='#500';X.fillRect(cw*0.1,ch*0.75,cw*0.8,1);
+    // Tekrar butonu
+    var blink2=Math.floor(Date.now()/500)%2===0;
+    X.fillStyle=blink2?'#0ff':'#446';X.font='bold '+Math.floor(cw/24)+'px Courier New';
+    X.shadowBlur=blink2?8:0;X.shadowColor='#0ff';
+    X.fillText('[ 🔥 TEKRAR ]',cw/2,ch*0.88);
+    X.shadowBlur=0;
     drawCRT();return;
   }
   if(state==='win'){drawWinScreen();return;}
@@ -1357,7 +1393,17 @@ function draw(){
     else if(cdN>0){X.fillStyle='#f55';X.font=Math.floor(cw/32)+'px Courier New';X.fillText('❤️ +1 Can!',cw/2,ch/2+78);}
   }
   for(var i=0;i<floats.length;i++){var f=floats[i];X.globalAlpha=f.life/60;X.fillStyle=f.col;X.font='bold '+Math.floor(W()/26)+'px Courier New';X.textAlign='center';X.fillText(f.txt,f.x,f.y);}X.globalAlpha=1;
-  if(phase==='clearing'&&phTimer>10&&warpT<=0){X.fillStyle='#ff0';X.font='bold '+Math.floor(W()/18)+'px Courier New';X.textAlign='center';X.shadowBlur=10;X.shadowColor='#ff0';X.fillText('DALGA '+wave+' BİTTİ!',W()/2,H()/2);X.shadowBlur=0;}
+  if(phase==='clearing'&&phTimer>30&&warpT<=0){
+    var cp=Math.min(1,(120-phTimer)/15);
+    X.globalAlpha=cp>0.9?Math.max(0,(phTimer-30)/30):cp;
+    X.fillStyle='#ff0';X.font='bold '+Math.floor(W()/16)+'px Courier New';X.textAlign='center';
+    X.shadowBlur=14;X.shadowColor='#ff0';
+    X.fillText('DALGA '+wave+' BİTTİ!',W()/2,H()/2-20);
+    X.font=Math.floor(W()/30)+'px Courier New';
+    X.fillStyle='#0ff';X.shadowColor='#0ff';X.shadowBlur=8;
+    X.fillText('SKOR: '+score.toLocaleString(),W()/2,H()/2+25);
+    X.shadowBlur=0;X.globalAlpha=1;
+  }
   if(phase==='bossExploding'){
     var blink=Math.floor(Date.now()/120)%2===0;
     if(blink){X.fillStyle='#ff0';X.font='bold '+Math.floor(W()/14)+'px Courier New';X.textAlign='center';X.shadowBlur=16;X.shadowColor='#ff0';X.fillText('BOSS YIKILDI!',W()/2,H()/2);X.shadowBlur=0;}
