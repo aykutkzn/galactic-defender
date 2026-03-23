@@ -4,15 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
+<meta name="msapplication-navbutton-color" content="#000000">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>:root{color-scheme:dark;}html,body{background-color:#000!important;}</style>
 <link rel="manifest" href="manifest.json">
 <title>Galactic Defender</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-html{background:#000;}
-body{background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100vw;height:100vh;height:100dvh;font-family:'Courier New',monospace;overflow:hidden;touch-action:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);}
+html{background:#000;min-height:100%;height:100%;}
+body{background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100vw;min-height:100vh;min-height:100dvh;height:100vh;height:100dvh;font-family:'Courier New',monospace;overflow:hidden;touch-action:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);}
 #ui{color:#0ff;font-size:12px;display:flex;justify-content:space-between;align-items:center;width:100%;max-width:480px;padding:4px 10px;}
 #pauseBtn{background:rgba(0,255,255,.1);border:1px solid rgba(0,255,255,.3);border-radius:4px;color:#0ff;font-size:11px;padding:2px 6px;cursor:pointer;user-select:none;}
 canvas{display:block;touch-action:none;image-rendering:pixelated;}
@@ -652,14 +654,40 @@ function drawBoss(){
   boss.rot=(boss.rot||0)+.018;boss.tick=(boss.tick||0)+1;
   drawBossSprite(Math.floor(boss.x),Math.floor(boss.y),boss,1);
   var ph=boss.hp/boss.mhp;
-  var bw=boss.w+28,bx=Math.floor(boss.x)-bw/2,by=Math.floor(boss.y)-boss.h/2-14;
-  X.fillStyle='#111';X.fillRect(bx,by,bw,7);
-  X.fillStyle=ph>.6?'#0f0':ph>.3?'#ff0':'#f33';X.fillRect(bx,by,bw*ph,7);
-  X.strokeStyle='#333';X.lineWidth=1;X.strokeRect(bx,by,bw,7);
-  X.textAlign='center';X.fillStyle=boss.col;X.font='bold '+Math.floor(W()/26)+'px Courier New';
-  X.shadowBlur=8;X.shadowColor=boss.col;X.fillText(boss.name,boss.x,boss.y-boss.h/2-20);X.shadowBlur=0;
-  if(boss.la){X.save();X.strokeStyle='rgba(255,40,40,'+(0.5+0.5*Math.sin(Date.now()/35))+')';X.lineWidth=PX()*3;X.shadowBlur=18;X.shadowColor='#f00';X.beginPath();X.moveTo(boss.lx,boss.y+boss.h/2);X.lineTo(boss.lx,H());X.stroke();X.restore();}
-  if(boss.lc>0&&!boss.la){X.save();X.strokeStyle='rgba(255,100,100,'+(boss.lc/120)+')';X.lineWidth=PX();X.setLineDash([PX()*2,PX()*2]);X.beginPath();X.moveTo(boss.x,boss.y+boss.h/2);X.lineTo(boss.x,H());X.stroke();X.setLineDash([]);X.restore();}
+  var px=PX();
+  // Retro HP bar — üstte tam ekran genişliğinde
+  var bw=Math.floor(W()*0.7),bx=W()/2-bw/2,by=Math.floor(boss.y)-boss.h/2-20;
+  var barH=px*2;
+  // Arka plan
+  X.fillStyle='#111';X.fillRect(bx,by,bw,barH);
+  // Segment segment dolu kısım
+  var segW=px*3,segGap=px;
+  var totalSegs=Math.floor(bw/(segW+segGap));
+  var filledSegs=Math.round(totalSegs*ph);
+  var segCol=ph>.6?'#0f0':ph>.3?'#ff0':'#f33';
+  for(var si=0;si<totalSegs;si++){
+    X.fillStyle=si<filledSegs?segCol:'#222';
+    X.fillRect(bx+si*(segW+segGap),by,segW,barH);
+  }
+  // Dış çerçeve pixel
+  X.strokeStyle=boss.col;X.lineWidth=1;X.strokeRect(bx-1,by-1,bw+2,barH+2);
+  // Köşe vurguları
+  X.fillStyle=boss.col;
+  X.fillRect(bx-px,by-px,px,px);X.fillRect(bx+bw,by-px,px,px);
+  X.fillRect(bx-px,by+barH,px,px);X.fillRect(bx+bw,by+barH,px,px);
+  // Boss adı — HP barın üstünde
+  X.textAlign='center';X.fillStyle=boss.col;
+  X.font='bold '+Math.floor(W()/28)+'px Courier New';
+  X.shadowBlur=8;X.shadowColor=boss.col;
+  X.fillText('[ '+boss.name+' ]',W()/2,by-px*2);
+  X.shadowBlur=0;
+  // HP yüzdesi sağda
+  X.fillStyle='#888';X.font=Math.floor(W()/38)+'px Courier New';
+  X.textAlign='right';
+  X.fillText(Math.ceil(ph*100)+'%',bx+bw-2,by+barH-1);
+  X.textAlign='left';
+  if(boss.la){X.save();X.strokeStyle='rgba(255,40,40,'+(0.5+0.5*Math.sin(Date.now()/35))+')';X.lineWidth=px*3;X.shadowBlur=18;X.shadowColor='#f00';X.beginPath();X.moveTo(boss.lx,boss.y+boss.h/2);X.lineTo(boss.lx,H());X.stroke();X.restore();}
+  if(boss.lc>0&&!boss.la){X.save();X.strokeStyle='rgba(255,100,100,'+(boss.lc/120)+')';X.lineWidth=px;X.setLineDash([px*2,px*2]);X.beginPath();X.moveTo(boss.x,boss.y+boss.h/2);X.lineTo(boss.x,H());X.stroke();X.setLineDash([]);X.restore();}
 }
 
 function drawBossIntroScreen(){
@@ -1085,20 +1113,20 @@ function update(){
   if(phase==='idle'){phase='countdown';cdN=3;phTimer=80;return;}
   if(phase==='countdown'){
     phTimer--;
-    if(phTimer<=0){cdN--;phTimer=80;}
+    if(phTimer<=0){cdN--;phTimer=60;}
     if(cdN<0){spawnWave(wave);}
     return;
   }
   if(phase==='bossIntro'){introT--;if(introT<=0){spawnBoss();}return;}
   if(phase==='clearing'){
     phTimer--;
-    if(phTimer===60)warpT=13;
+    
     if(phTimer<=0){
       wave++;
       if(wave>MAX_WAVE){state='win';winTimer=0;winParts=[];if(score>highScore)highScore=score;localStorage.setItem('gd_hs',highScore);sWin();return;}
       if(lives<3){lives++;}
       bullets=[];eBullets=[];xTimer=0;resetP();
-      waveFlash=150;phase='waveIn';phTimer=170; // flash + biraz bekleme
+      waveFlash=150;phase='waveIn';phTimer=160;
     }
     return;
   }
@@ -1118,7 +1146,7 @@ function update(){
         if(score>highScore)highScore=score;localStorage.setItem('gd_hs',highScore);
         state='win';winTimer=0;winParts=[];sWin();
       }else{
-        phase='clearing';phTimer=180;
+        phase='clearing';phTimer=90;
       }
     }
     return;
@@ -1214,7 +1242,7 @@ function update(){
   processSpawnQueue();
   for(var i=parts.length-1;i>=0;i--){var p=parts[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.04;p.life--;if(p.life<=0)parts.splice(i,1);}
   for(var i=floats.length-1;i>=0;i--){var f=floats[i];f.y+=f.vy;f.life--;if(f.life<=0)floats.splice(i,1);}
-  if(enemies.length===0&&spawnQueue.length===0&&pendingGroups.length===0&&!boss&&(phase==='playing'||phase==='bossPlaying')){phase='clearing';phTimer=180;}
+  if(enemies.length===0&&spawnQueue.length===0&&pendingGroups.length===0&&!boss&&(phase==='playing'||phase==='bossPlaying')){phase='clearing';phTimer=90;}
   document.getElementById('sEl').textContent=score;
   document.getElementById('wEl').textContent=wave+'/'+MAX_WAVE;
   document.getElementById('lEl').textContent='❤️'.repeat(Math.max(0,lives));
@@ -1564,10 +1592,6 @@ function draw(){
       }
       X.restore();
     }
-    drawCRT();return;
-  }
-  if(warpT>0){
-    for(var i=0;i<stars.length;i++){var s=stars[i];X.strokeStyle='rgba(255,255,255,.4)';X.lineWidth=1;X.beginPath();X.moveTo(s.x,s.y);X.lineTo(s.x,s.y+s.sp*13);X.stroke();}
     drawCRT();return;
   }
   drawStars();
