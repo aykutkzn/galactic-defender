@@ -248,62 +248,95 @@ function initStars(){
     r:pd[i].r,col:pd[i].col,sp:pd[i].sp,
     ring:pd[i].ring,detail:pd[i].detail
   });
-  // Astronotlar — arka planda yavaşça süzülen
+  // Astronotlar — arka planda yavaşça süzülen pixel art
   astronauts=[];
-  for(var i=0;i<4;i++){
+  for(var i=0;i<3;i++){
     astronauts.push({
       x:Math.random()*W(),y:Math.random()*H(),
-      vx:(Math.random()-.5)*0.18,vy:(Math.random()-.5)*0.12+0.08,
-      rot:Math.random()*Math.PI*2,rotV:(Math.random()-.5)*0.008,
-      sc:0.55+Math.random()*0.3, // ölçek
-      suit:Math.floor(Math.random()*3), // 0=beyaz, 1=turuncu, 2=sarı
-      tw:Math.random()*120 // titreme fazı
+      vx:(Math.random()-.5)*0.12,vy:(Math.random()*.10+0.04),
+      rot:(Math.random()-.5)*0.15, // hafif eğim, sürekli dönmez
+      rotV:(Math.random()-.5)*0.003,
+      sc:0.38+Math.random()*0.20,
+      tw:Math.random()*120
     });
   }
 }
 initStars();
 
 function drawAstronaut(a){
-  var p=PX()*a.sc;
-  var sc=a.suit===0?'#ccc':a.suit===1?'#f90':'#ff0';
-  var dark=a.suit===0?'#888':a.suit===1?'#b60':'#aa0';
+  var p=Math.max(1,Math.floor(PX()*a.sc));
   X.save();
   X.translate(Math.floor(a.x),Math.floor(a.y));
   X.rotate(a.rot);
-  X.globalAlpha=0.32+0.08*Math.sin(a.tw/30);
+  X.globalAlpha=0.50+0.08*Math.sin(a.tw/25);
+
+  var W1='#dde',W2='#bbc',RED='#e03060',BLU='#3858d0',VIZ='#100840';
+
   // Bacaklar
-  pr(-p*1.5,p*2,p,p*2,sc);pr(-p*0.3,p*2,p,p*2,sc);
-  pr(-p*1.5,p*3.5,p,p,dark);pr(-p*0.3,p*3.5,p,p,dark);
-  // Gövde — kıyafet paketi
-  pr(-p*2,p*0,p*4,p*2.5,sc);
-  pr(-p*1.5,p*0.3,p*3,p*1.8,dark+'88');
+  pr(-p*2,p*6,p*2,p*3,W1);pr(0,p*6,p*2,p*3,W1);
+  pr(-p*3,p*8.5,p*3,p,W2);pr(0,p*8.5,p*3,p,W2);
+  pr(-p*2,p*7.5,p*4,Math.ceil(p*.5),RED);
+
+  // Gövde
+  pr(-p*3,p*2,p*6,p*4,W1);
+  pr(-p*3,p*4,p*6,Math.ceil(p*.5),RED);pr(-p*3,p*2.4,p*6,Math.ceil(p*.4),RED);
+  pr(-p*1.5,p*2.5,p*3,p*2,W2);
+  pr(-p*1.2,p*2.8,p,Math.ceil(p*.7),BLU);pr(p*.2,p*2.8,p,Math.ceil(p*.7),RED);
+
   // Kollar
-  pr(-p*3,p*0.2,p,p*2,sc);pr(p*2,p*0.2,p,p*2,sc);
-  pr(-p*3.5,p*1.5,p,p,dark);pr(p*2.5,p*1.5,p,p,dark);
-  // Kafa (kask)
-  pr(-p*1.5,-p*2,p*3,p*2.5,sc);
+  pr(-p*5,p*2,p*2,p*2.5,W1);pr(-p*6,p*3.5,p*2,p*2,W2);pr(-p*6.5,p*5,p*2.5,p*2,W1);
+  pr(p*3,p*2,p*2,p*2.5,W1);pr(p*3.5,p*3.5,p*2,p*2,W2);pr(p*3,p*5,p*2.5,p*2,W1);
+
+  // Kask
+  pr(-p*3,p*-4,p*6,p*6,W1);
+  pr(-p*3.5,p*-2.5,p*7,p*4,W1);
+  pr(-p*3,p*-5,p*6,p,W1);
+  pr(-p*3.5,p*.5,p*7,Math.ceil(p*.6),RED);
+  pr(-p*3.5,p*-2.5,p*7,Math.ceil(p*.5),RED);
+
   // Vizör
-  pr(-p,-p*1.8,p*2,p*1.5,'#004488');
-  pr(-p*0.7,-p*1.6,p*1.4,p,'rgba(100,200,255,0.5)');
-  // Kask yansıması
-  pr(-p*1.2,-p*1.6,Math.ceil(p*0.5),Math.ceil(p*0.8),'rgba(255,255,255,0.4)');
-  // Oksijen tüpü — sırtta
-  pr(p*1.8,-p*0.5,Math.ceil(p*0.7),p*2,'#aaa');
-  // Küçük ışık — kaskta yanıp söner
-  var litColor=a.suit===0?'rgba(0,255,200,'+(0.4+0.4*Math.sin(a.tw/20))+')':'rgba(255,200,0,'+(0.4+0.4*Math.sin(a.tw/20))+')';
-  pr(-p*1.5,-p*2,Math.ceil(p*0.5),Math.ceil(p*0.5),litColor);
-  X.globalAlpha=1;
+  pr(-p*2,p*-3.5,p*4,p*5,VIZ);
+  pr(-p*1.5,p*-3,p*3,p*4,'#1e1060');
+  pr(-p*1.8,p*-3.2,p*1.2,p*1.5,'rgba(160,140,255,0.35)');
+  pr(-p,p*-3.5,Math.ceil(p*.5),p,'rgba(255,255,255,0.25)');
+
+  // Oksijen tüpü
+  pr(p*2.8,p*-.5,Math.ceil(p*.7),p*2.5,'#aaa');
+
+  // Balon (ipe bağlı, jupiter çizgili)
+  var bpx=p*3.5,bpy=-p*11,bR=p*3;
+  X.strokeStyle='rgba(200,200,200,0.55)';X.lineWidth=Math.max(1,Math.ceil(p*.28));
+  X.beginPath();X.moveTo(p*4,p*5);X.bezierCurveTo(p*5.5,p*0,p*5.5,-p*5,bpx,bpy+bR);X.stroke();
+
+  // Balon — canvas clip ile düzgün daire içinde çizgiler
+  X.save();
+  X.beginPath();X.arc(bpx,bpy,bR,0,Math.PI*2);X.clip();
+  var bCols=['#cc3300','#dd5500','#ee8800','#ffaa00','#ffcc33','#ffaa00','#ee8800','#dd5500'];
+  var bStrW=bR*2/bCols.length;
+  for(var bi=0;bi<bCols.length;bi++)pr(bpx-bR+bi*bStrW,bpy-bR,bStrW+1,bR*2,bCols[bi]);
+  // Parlaklık
+  X.fillStyle='rgba(255,220,150,0.30)';X.beginPath();X.arc(bpx-bR*.32,bpy-bR*.32,bR*.4,0,Math.PI*2);X.fill();
   X.restore();
+  // Balon kenarlık
+  X.strokeStyle='rgba(0,0,0,0.45)';X.lineWidth=Math.max(1,p*.55);
+  X.beginPath();X.arc(bpx,bpy,bR,0,Math.PI*2);X.stroke();
+  // İp bağlantısı
+  pr(bpx-Math.ceil(p*.35),bpy+bR-p,Math.ceil(p*.7),p,'#900');
+
+  // Kask yanıp sönen ışık
+  X.fillStyle='rgba(0,200,220,'+(0.35+.30*Math.sin(a.tw/15))+')';
+  X.fillRect(Math.floor(-p*3.5),Math.floor(p*-1.5),Math.ceil(p*.7),Math.ceil(p*.7));
+
+  X.shadowBlur=0;X.globalAlpha=1;X.restore();
 }
 
 function updateAstronauts(){
-  var margin=80;
+  var margin=100;
   for(var i=0;i<astronauts.length;i++){
     var a=astronauts[i];
     a.x+=a.vx;a.y+=a.vy;
     a.rot+=a.rotV;a.tw=(a.tw+1)%120;
-    // Ekrandan çıkınca karşı taraftan gir
-    if(a.y>H()+margin){a.y=-margin;a.x=Math.random()*W();}
+    if(a.y>H()+margin){a.y=-margin-20;a.x=Math.random()*W();}
     if(a.y<-margin*2){a.y=H()+margin;a.x=Math.random()*W();}
     if(a.x>W()+margin){a.x=-margin;a.y=Math.random()*H();}
     if(a.x<-margin*2){a.x=W()+margin;a.y=Math.random()*H();}
@@ -367,6 +400,7 @@ function resetP(){P={x:W()/2,y:H()-60,w:30,h:32,spd:1.1,inv:0,shld:0};lives=Math
 resetP();
 var bullets=[],eBullets=[],enemies=[],parts=[],pups=[],floats=[];
 var boss=null,bDir=1,sCool=0,rTimer=0,xTimer=0,rocketReady=0,rockets=[];
+var screenShake=0; // ekran titremesi
 
 // ── WAVE DEFS ──────────────────────────────────────────────────
 var WAVE_DEFS=[
@@ -530,11 +564,13 @@ function processSpawnQueue(){
 
 function spawnBoss(){
   var cfg=introCfg;
+  // Boss health bar PX()*8 civarı yer kaplıyor, boss'u daha aşağıdan başlat
+  var startY=H()*0.22; // ekranın %22'sinden başla (health bar'ın altında)
   boss={name:cfg.name,col:cfg.col,hp:cfg.hp,mhp:cfg.maxHp,
     design:cfg.design,pattern:cfg.pattern,
-    x:W()/2,y:-90,w:cfg.name==='OMEGA'?80:72,h:cfg.name==='OMEGA'?60:56,
+    x:W()/2,y:startY,w:cfg.name==='OMEGA'?60:52,h:cfg.name==='OMEGA'?44:40,
     st:80,sa:0,lc:0,la:false,lx:0,lt:0,ph:1,rot:0,
-    entering:true,webTimer:0,tick:0,sc:0,omegaAng:0};
+    entering:false,webTimer:0,tick:0,sc:0,omegaAng:0,crossAng:0};
   introActive=false;
   bDir=1;
   phase='bossPlaying';
@@ -610,39 +646,50 @@ function drawEnemySprite(e){
     pr(x-p*5,y+p*2,p,p,fl?'#f88':'#f55');pr(x+p*4,y+p*2,p,p,fl?'#f88':'#f55');
     pr(x-p,y+p*2,p*2,p,fl?'#ff8':'#fa0');
   }else if(e.type==='C'){
-    // C tipi — Retro pixel art mor uzay yaratığı (Invader benzeri)
-    // Kompakt, net, klasik pixel art tasarım
-    var mc='#b0f'; // ana mor
-    var lc='#d4f'; // açık mor  
-    var dc='#7007a0'; // koyu mor
-    var ey=fl?'#fff':'#ff0'; // göz rengi
-    // Gövde
-    pr(x-p*2,y-p*3,p*4,p*6,mc);
-    // Yatay genişleme (kanat benzeri)
-    pr(x-p*3,y-p*2,p*6,p*3,mc);
-    // Üst çıkıntılar
-    pr(x-p*2,y-p*5,p,p*2,mc);
-    pr(x,y-p*5,p,p*2,mc);
-    // İç koyu panel
-    pr(x-p*1.5,y-p*2.5,p*3,p*4,dc);
-    // Gözler
-    pr(x-p,y-p*2,p,p,ey);
-    pr(x,y-p*2,p,p,ey);
-    X.shadowColor='#f0f';X.shadowBlur=6;
-    pr(x-p,y-p*2,Math.ceil(p*0.6),Math.ceil(p*0.6),fl?'#fff':'#f0f');
-    pr(x+Math.ceil(p*0.4),y-p*2,Math.ceil(p*0.6),Math.ceil(p*0.6),fl?'#f0f':'#fff');
+    // C tipi — Klasik Uzay İstilacısı Ahtapot (squid invader)
+    var c1='#cc44ff'; // ana mor-pembe
+    var c2='#ff88ff'; // açık
+    var c3='#880088'; // koyu
+    var glow=fl?'#ff00ff':'#cc00ff';
+    // Frame animasyonu — 2 kare
+    if(fl){
+      // Kare 1: kollar aşağıda
+      pr(x-p*4,y+p*2,p*2,p*2,c1);   // sol dış kol
+      pr(x+p*2,y+p*2,p*2,p*2,c1);   // sağ dış kol
+      pr(x-p*2,y+p*3,p,p*2,c1);     // sol iç kol
+      pr(x+p,y+p*3,p,p*2,c1);       // sağ iç kol
+    }else{
+      // Kare 2: kollar açık
+      pr(x-p*4,y,p,p*2,c1);
+      pr(x+p*3,y,p,p*2,c1);
+      pr(x-p*3,y+p*2,p*2,p,c1);
+      pr(x+p,y+p*2,p*2,p,c1);
+      pr(x-p*2,y+p*3,p,p*3,c1);
+      pr(x+p,y+p*3,p,p*3,c1);
+    }
+    // Gövde ana blok
+    pr(x-p*3,y-p*4,p*6,p*6,c1);
+    // Kafa çıkıntıları (üstte 2 tane)
+    pr(x-p*2,y-p*6,p,p*2,c1);
+    pr(x+p,y-p*6,p,p*2,c1);
+    // Yüz iç panel (koyu)
+    pr(x-p*2,y-p*3,p*4,p*4,c3);
+    // Gözler — büyük ve oval
+    X.shadowColor=glow;X.shadowBlur=8;
+    pr(x-p*2,y-p*2,p*2,p*2,c2);   // sol göz dış
+    pr(x+p,y-p*2,p*2,p*2,c2);     // sağ göz dış
+    pr(x-p*2+Math.ceil(p*0.3),y-p*2+Math.ceil(p*0.3),Math.ceil(p*1.4),Math.ceil(p*1.4),fl?'#fff':glow); // sol pupil
+    pr(x+p+Math.ceil(p*0.3),y-p*2+Math.ceil(p*0.3),Math.ceil(p*1.4),Math.ceil(p*1.4),fl?glow:'#fff');    // sağ pupil
     X.shadowBlur=0;
-    // Ağız (çentik)
-    pr(x-p*1.5,y-p,p,Math.ceil(p*0.5),dc);
-    pr(x+Math.ceil(p*0.5),y-p,p,Math.ceil(p*0.5),dc);
-    // Alt tentakeller — ikişer adet, yanıp söner
-    pr(x-p*2,y+p*2,p,p,fl?mc:dc);
-    pr(x-p*2,y+p*3,p,p,fl?dc:mc);
-    pr(x+p,y+p*2,p,p,fl?dc:mc);
-    pr(x+p,y+p*3,p,p,fl?mc:dc);
-    // Işıltı
-    pr(x-p,y-p*3,p,p,lc);
-    pr(x-p*2,y-p,p,Math.ceil(p*0.5),lc);
+    // Ağız
+    pr(x-p,y,p,Math.ceil(p*0.5),c2);
+    // Alt dişler (3 tane)
+    pr(x-p*2,y+p,Math.ceil(p*0.7),p,c1);
+    pr(x-p*0.5,y+p,Math.ceil(p*0.7),p,c1);
+    pr(x+p,y+p,Math.ceil(p*0.7),p,c1);
+    // Gövde kenar vurgusu
+    pr(x-p*3,y-p*4,p,p,c2);        // üst sol köşe
+    pr(x+p*2,y-p*4,p,p,c2);        // üst sağ köşe
   }else if(e.type==='D'){
     pr(x-p*2,y-p*5,p,p,c);pr(x+p,y-p*5,p,p,c);
     pr(x-p*2,y-p*6,p,p,'#aaff00');pr(x+p,y-p*6,p,p,'#aaff00');
@@ -666,355 +713,367 @@ function drawEnemySprite(e){
   }
 }
 
-// ── BOSS SPRITES ──────────────────────────────────────────────────
+// ── BOSS SPRITES — Uzaylı temalı retro pixel art ─────────────────
+
+// WARDEN — Dev kafataslı uzaylı komutanı, zırhlı omuzlar, tentakeller
 function drawWardenDragon(bx,by,col,fl,ft4,p){
-  pr(bx-p,by-p*9,p*2,p*2,col);
-  pr(bx-p*2,by-p*11,p*4,p*4,col);
-  pr(bx-p*3,by-p*12,p*2,p,'#c55');
-  pr(bx+p,by-p*12,p*2,p,'#c55');
-  pr(bx-p*3,by-p*11,p,p*2,col);
-  pr(bx+p*2,by-p*11,p,p*2,col);
-  pr(bx-p*2,by-p*10,p,p,'#000');
-  pr(bx+p,by-p*10,p,p,'#000');
-  X.shadowColor='#f00';X.shadowBlur=12;
-  pr(bx-p*2,by-p*10,p,p,fl?'#f22':'#f88');
-  pr(bx+p,by-p*10,p,p,fl?'#f88':'#f22');
+  var t=Date.now();
+  // Animasyon titreyişleri
+  var pw=Math.sin(t*0.005)*p*0.5; // kanat dalgalanma
+  var pe=ft4%2===0; // göz yanıp sönme
+
   X.shadowColor=col;X.shadowBlur=10;
-  pr(bx-p*2,by-p*8,p*4,p,'#000');
-  pr(bx-p*2,by-p*8,p,p,ft4<2?'#ff4400':'#ffaa00');
-  pr(bx,by-p*8,p,p,ft4<2?'#ffaa00':'#ff0');
-  pr(bx+p,by-p*8,p,p,ft4<2?'#ff0':'#f80');
-  pr(bx-p*3,by-p*7,p*6,p*8,col);
-  pr(bx-p*4,by-p*5,p*8,p*4,col);
-  pr(bx-p*2,by-p*6,p*4,p*5,'#e96020');
-  pr(bx-p,by-p*5,p,p,'#c55');
-  pr(bx,by-p*5,p,p,'#c55');
-  pr(bx-p*2,by-p*3,p,p,'#c55');
-  pr(bx+p,by-p*3,p,p,'#c55');
-  pr(bx-p*10,by-p*7,p*6,p*2,col);
-  pr(bx-p*12,by-p*5,p*8,p*2,ca(col,0.85));
-  pr(bx-p*10,by-p*3,p*6,p*2,col);
-  pr(bx-p*8,by-p,p*4,p*2,ca(col,0.7));
-  pr(bx-p*12,by-p*7,p*2,p,col);
-  pr(bx-p*13,by-p*5,p,p,'#c55');
-  pr(bx-p*12,by-p*3,p,p,'#c55');
-  pr(bx+p*4,by-p*7,p*6,p*2,col);
-  pr(bx+p*4,by-p*5,p*8,p*2,ca(col,0.85));
-  pr(bx+p*4,by-p*3,p*6,p*2,col);
-  pr(bx+p*4,by-p,p*4,p*2,ca(col,0.7));
-  pr(bx+p*10,by-p*7,p*2,p,col);
-  pr(bx+p*12,by-p*5,p,p,'#c55');
-  pr(bx+p*11,by-p*3,p,p,'#c55');
-  pr(bx-p*4,by+p,p*2,p*4,col);
-  pr(bx+p*2,by+p,p*2,p*4,col);
-  pr(bx-p*5,by+p*4,p*3,p,col);
-  pr(bx+p*2,by+p*4,p*3,p,col);
-  pr(bx-p*6,by+p*5,p,p,'#ff8800');
-  pr(bx-p*5,by+p*5,p,p,'#ff8800');
-  pr(bx-p*4,by+p*5,p,p,'#ff8800');
-  pr(bx+p*2,by+p*5,p,p,'#ff8800');
-  pr(bx+p*3,by+p*5,p,p,'#ff8800');
-  pr(bx+p*4,by+p*5,p,p,'#ff8800');
-  pr(bx-p,by+p,p*2,p*4,col);
-  pr(bx-p,by+p*5,p,p*3,ca(col,0.85));
-  pr(bx-p*2,by+p*7,p,p*2,ca(col,0.6));
-  pr(bx-p*2,by+p*8,p*2,p,'#c55');
-  X.shadowColor='#ff0';X.shadowBlur=14;
-  pr(bx-p*2,by-p*2,p*4,p*2,ft4<2?'#ff4400':'#ffaa00');
-  pr(bx-p,by-p,p*2,p,ft4<2?'#ff8800':'#ff0');
+
+  // ── Kanatlar — yatay membran kanatlar ──
+  // Sol kanat (dalgalı)
+  var wx=bx-p*5+pw;
+  pr(wx-p*7,by-p*3,p*7,p*2,col);
+  pr(wx-p*9,by-p*1,p*9,p*2,ca(col,0.8));
+  pr(wx-p*8,by+p,p*8,p*1.5,ca(col,0.6));
+  pr(wx-p*10,by-p*4,p*3,p,col); // üst parmak
+  pr(wx-p*7,by-p*5,p*2,p,col);
+  pr(wx-p*4,by-p*4,p*2,p,col);
+  // Sağ kanat
+  var wx2=bx+p*5-pw;
+  pr(wx2,by-p*3,p*7,p*2,col);
+  pr(wx2,by-p*1,p*9,p*2,ca(col,0.8));
+  pr(wx2,by+p,p*8,p*1.5,ca(col,0.6));
+  pr(wx2+p*7,by-p*4,p*3,p,col);
+  pr(wx2+p*2,by-p*5,p*2,p,col);
+  pr(wx2-p,by-p*4,p*2,p,col);
+
+  // ── Gövde — uzaylı karın bölgesi ──
+  pr(bx-p*4,by-p*4,p*8,p*8,col);      // torso
+  pr(bx-p*5,by-p*2,p*10,p*5,'#004400'); // karın yüzeyi
+  pr(bx-p*4,by-p*3,p*8,p*6,'#006600'); // iç yeşil
+  // Karın desenleri — alien doku
+  for(var i=0;i<4;i++){
+    pr(bx-p*3+i*p*1.5,by-p*2+i*p*0.5,p,Math.ceil(p*0.5),'#00ff44');
+  }
+  // Neon reaktör çekirdeği
+  X.shadowColor='#0f0';X.shadowBlur=16;
+  pr(bx-p*1.5,by-p*1,p*3,p*2,ft4<2?'#0f0':'#aaff00');
+  pr(bx-p,by-p*0.5,p*2,p,fl?'#fff':'#0ff');
+  X.shadowColor=col;X.shadowBlur=8;
+
+  // ── Kafa — dev kafatası uzaylı ──
+  pr(bx-p*5,by-p*12,p*10,p*8,col);   // kafa kutusu
+  pr(bx-p*4,by-p*11,p*8,p*6,'#002200'); // yüz karanlığı
+  // Kafa tepe çıkıntıları
+  pr(bx-p*4,by-p*14,p*2,p*2,col);
+  pr(bx-p,by-p*15,p*2,p*3,col);
+  pr(bx+p*2,by-p*14,p*2,p*2,col);
+  // Antilep boynuzları
+  pr(bx-p*5,by-p*13,p,p*3,col);
+  pr(bx-p*6,by-p*15,p,p*2,col);
+  pr(bx+p*4,by-p*13,p,p*3,col);
+  pr(bx+p*5,by-p*15,p,p*2,col);
+  // Kafatası deseni (üstte)
+  pr(bx-p*3,by-p*13,p,p,'#002200');
+  pr(bx-p,by-p*13.5,p*2,p,'#002200');
+  pr(bx+p*2,by-p*13,p,p,'#002200');
+
+  // ── Gözler — 4 adet, üçgen dizilim ──
+  X.shadowColor='#0f0';X.shadowBlur=14;
+  var eyeColors=[['#0f0','#0a0'],['#aaff00','#0f0'],['#0f0','#aaff00'],['#0a0','#0f0']];
+  var eyePos=[[-3,-10.5],[-1,-11.5],[1,-11.5],[3,-10.5]];
+  for(var i=0;i<4;i++){
+    pr(bx+eyePos[i][0]*p,by+eyePos[i][1]*p,p*1.5,p*1.5,'#000');
+    pr(bx+eyePos[i][0]*p+1,by+eyePos[i][1]*p+1,p-2,p-2,pe&&i%2===0?eyeColors[i][0]:eyeColors[i][1]);
+  }
+  X.shadowBlur=0;
+  // Ağız — uzun yatay
+  pr(bx-p*3,by-p*8,p*6,p,'#000');
+  for(var i=0;i<6;i++){
+    pr(bx-p*3+i*p,by-p*8,Math.ceil(p*0.6),p*(i%2===0?1:0.6),i%2===0?'#0f0':'#002200');
+  }
+
+  // ── Alt tentakeller — 3 adet ──
+  X.shadowColor='#0f0';X.shadowBlur=6;
+  var tpos=[-p*3,0,p*3];
+  for(var ti=0;ti<3;ti++){
+    var tw=Math.sin(t*0.006+ti*2.1)*p*1.5;
+    pr(bx+tpos[ti]-p/2,by+p*4,p,p*2+Math.abs(tw),col);
+    pr(bx+tpos[ti]-p*0.8+tw/2,by+p*6+Math.abs(tw),p*1.6,p,ft4%2===ti%2?'#0f0':'#004400');
+  }
   X.shadowBlur=0;
 }
 
-// CRUSHER — yenilendi: zırhlı dev akrep
+// CRUSHER — Klasik UFO taşıyıcı — yassı disk, ışın topu, anteller
 function drawCrusherSpider(bx,by,col,fl,ft4,p){
   var t=Date.now();
-  // Kuyruk segmentleri (akrep kuyruğu — yukarı kıvrılan)
-  var tailSegs=[
-    {dx:2,dy:4},{dx:5,dy:2},{dx:8,dy:-1},{dx:10,dy:-5},{dx:9,dy:-9}
-  ];
-  X.shadowColor=col;X.shadowBlur=6;
-  for(var i=0;i<tailSegs.length;i++){
-    var ts=tailSegs[i];
-    var sw=p*(2.2-i*0.3);
-    pr(bx+ts.dx*p-sw/2,by+ts.dy*p-sw/2,sw,sw,i%2===0?col:'#880099');
-  }
-  // Kuyruk iğnesi — parlıyor
-  X.shadowColor='#f0f';X.shadowBlur=14;
-  pr(bx+p*9,by-p*9,p*2,p*2,ft4<2?'#fff':'#f0f');
-  pr(bx+p*10,by-p*11,p,p*2,ft4<2?'#f0f':'#fff');
-  X.shadowBlur=0;
+  X.shadowColor=col;X.shadowBlur=12;
 
-  // 4 çift bacak — eklemli, katı çizgi
-  var legs=[
-    // [omuz x, omuz y, diz x, diz y, pençe x, pençe y]
-    [-4,-2, -8,-5, -13,-3],
-    [-4,0,  -9,-1, -14,3],
-    [-4,2,  -9,4,  -13,8],
-    [-4,4,  -8,8,  -12,12],
-    [3,-2,  7,-5,  12,-3],
-    [3,0,   8,-1,  13,3],
-    [3,2,   8,4,   12,8],
-    [3,4,   7,8,   11,12],
-  ];
-  for(var i=0;i<legs.length;i++){
-    var L=legs[i];
-    // Üst segment
-    X.strokeStyle=col;X.lineWidth=Math.ceil(p*1.3);
-    X.beginPath();X.moveTo(bx+L[0]*p,by+L[1]*p);X.lineTo(bx+L[2]*p,by+L[3]*p);X.stroke();
-    // Alt segment
-    X.strokeStyle='#880099';X.lineWidth=Math.ceil(p*0.9);
-    X.beginPath();X.moveTo(bx+L[2]*p,by+L[3]*p);X.lineTo(bx+L[4]*p,by+L[5]*p);X.stroke();
-    // Eklem
-    X.fillStyle='#fff';X.fillRect(bx+L[2]*p-p/2,by+L[3]*p-p/2,p,p);
-    // Pençe (çatal)
-    X.strokeStyle=fl?'#f0f':'#880099';X.lineWidth=Math.ceil(p*0.7);
-    X.beginPath();X.moveTo(bx+L[4]*p,by+L[5]*p);X.lineTo(bx+(L[4]-1)*p,by+(L[5]+1.5)*p);X.stroke();
-    X.beginPath();X.moveTo(bx+L[4]*p,by+L[5]*p);X.lineTo(bx+(L[4]+1)*p,by+(L[5]+1.5)*p);X.stroke();
-  }
+  // ── UFO disk gövdesi ──
+  // Alt düzlem (geniş, yassı)
+  pr(bx-p*8,by-p,p*16,p*3,col);
+  pr(bx-p*9,by,p*18,p*2,ca(col,0.9));
+  pr(bx-p*10,by+p,p*20,p,ca(col,0.7));
+  // Disk üstü (kubbe)
+  pr(bx-p*5,by-p*5,p*10,p*4,col);
+  pr(bx-p*4,by-p*7,p*8,p*2,col);
+  pr(bx-p*3,by-p*8,p*6,p,col);
+  // Kubbe iç (cam)
+  pr(bx-p*3,by-p*6,p*6,p*4,'#001133');
+  pr(bx-p*2,by-p*7,p*4,p*2,'#002266');
+  // Cam yansıması
+  pr(bx-p*2.5,by-p*6.5,p,p,'rgba(100,180,255,0.5)');
+  pr(bx-p,by-p*7,p*2,Math.ceil(p*0.5),'rgba(180,220,255,0.3)');
 
-  // Gövde — zırhlı segmentler
+  // ── Işıklar — alt kenarlarda döner ──
+  var lightCols=['#f0f','#0ff','#ff0','#f0f','#0ff','#ff0','#f0f','#0ff'];
+  for(var i=0;i<8;i++){
+    var lx=bx-p*7+i*p*2;
+    var lc2=(ft4+i)%4;
+    X.shadowColor=lightCols[i%8];X.shadowBlur=8;
+    pr(lx,by+p*2,p,p,lc2===0?lightCols[i%8]:'#111');
+  }
   X.shadowColor=col;X.shadowBlur=8;
-  // Ana karapas
-  pr(bx-p*4,by-p*7,p*8,p*3,col);   // üst zırh
-  pr(bx-p*5,by-p*4,p*10,p*7,'#5500aa'); // karın
-  pr(bx-p*4,by-p*4,p*8,p*6,col);   // yan zırhlar
-  // Zırh çizgileri (segment)
-  pr(bx-p*4,by-p*2,p*8,p,'#330066');
-  pr(bx-p*4,by,p*8,p,'#440077');
-  // Kıskaçlar (büyük, önde)
-  pr(bx-p*6,by-p*9,p*3,p*3,col); // sol kıskaç gövde
-  pr(bx+p*3,by-p*9,p*3,p*3,col); // sağ
-  pr(bx-p*7,by-p*11,p*2,p*3,col);pr(bx-p*5,by-p*11,p*2,p*2,col); // sol üst
-  pr(bx+p*5,by-p*11,p*2,p*3,col);pr(bx+p*3,by-p*11,p*2,p*2,col); // sağ üst
-  // Kıskaç uçları (açılıp kapanıyor)
+
+  // ── Anteller ──
+  pr(bx-p*6,by-p*8,p,p*2,'#aaa');  // sol anten
+  pr(bx-p*7,by-p*10,p*2,p,'#aaa');
+  pr(bx+p*5,by-p*8,p,p*2,'#aaa');  // sağ anten
+  pr(bx+p*5,by-p*10,p*2,p,'#aaa');
   X.shadowColor='#f0f';X.shadowBlur=10;
-  if(ft4<2){
-    pr(bx-p*8,by-p*12,p*2,p,'#f0f');pr(bx-p*6,by-p*13,p*2,p,'#f0f');
-    pr(bx+p*6,by-p*12,p*2,p,'#f0f');pr(bx+p*4,by-p*13,p*2,p,'#f0f');
-  }else{
-    pr(bx-p*8,by-p*13,p*3,p,'#f0f');
-    pr(bx+p*5,by-p*13,p*3,p,'#f0f');
-  }
+  pr(bx-p*7,by-p*11,p*2,p*2,ft4<2?col:'#fff');
+  pr(bx+p*5,by-p*11,p*2,p*2,ft4<2?'#fff':col);
+  X.shadowColor=col;X.shadowBlur=8;
+
+  // ── İçerideki uzaylı (camdan gözüküyor) ──
+  // Kafa (oval uzaylı başı)
+  pr(bx-p,by-p*6.5,p*2,p*3,'#0a2200');
+  pr(bx-p*0.5,by-p*6.5,p,p*3,'#0f4400');
+  // İri gözler
+  X.shadowColor='#0f0';X.shadowBlur=12;
+  pr(bx-p*1.5,by-p*6,p,p*1.5,fl?'#0f0':'#aaff00');
+  pr(bx+p*0.5,by-p*6,p,p*1.5,fl?'#aaff00':'#0f0');
   X.shadowBlur=0;
 
-  // 8 göz — 2 büyük, 6 küçük
-  var eyePos=[[-1.5,-6.5],[-0.5,-7.5],[0.5,-7.5],[1.5,-6.5],[-2.5,-5.5],[-1,-5.5],[1,-5.5],[2.5,-5.5]];
-  for(var i=0;i<eyePos.length;i++){
-    var ey=eyePos[i];
-    var sz=(i<4)?p*1.2:p*0.8;
-    X.fillStyle='#1a0033';X.fillRect(bx+ey[0]*p-sz/2,by+ey[1]*p-sz/2,sz,sz);
-    X.shadowColor='#f0f';X.shadowBlur=8;
-    X.fillStyle=(fl&&i%2===0)?'#fff':'#f0f';
-    X.fillRect(bx+ey[0]*p-sz/2+1,by+ey[1]*p-sz/2+1,sz-2,sz-2);
-  }
-  X.shadowBlur=0;
-  // Zehir torbası (parıyor)
-  X.shadowColor='#0f0';X.shadowBlur=10;
-  pr(bx-p,by+p*3,p*2,p*2,ft4%2===0?'#0f0':'#0a0');
-  X.shadowBlur=0;
+  // ── Çekim ışını ──
+  X.shadowColor=col;X.shadowBlur=8;
+  X.globalAlpha=0.3+0.15*Math.sin(t*0.008);
+  X.fillStyle=col;
+  X.beginPath();
+  X.moveTo(bx-p*2,by+p*3);
+  X.lineTo(bx+p*2,by+p*3);
+  X.lineTo(bx+p*4,by+p*8);
+  X.lineTo(bx-p*4,by+p*8);
+  X.closePath();X.fill();
+  X.globalAlpha=1;X.shadowBlur=0;
 }
 
-// NEMESIS — yenilendi: dev siber robot kafası, çok korkunç
+// NEMESIS — Dev uzaylı kral, salyangoz-böcek hibridi, çok uzuvlu
 function drawNemesisBoss(bx,by,col,fl,ft4,p){
   var t=Date.now();
-  var nCol='#ff0';
+  var nCol=col||'#ff0';
+
   X.shadowColor=nCol;X.shadowBlur=12;
 
-  // ── Omuzlar — dev kanatlar gibi ──
-  // Sol omuz bloğu
-  pr(bx-p*12,by-p*4,p*7,p*5,nCol);
-  pr(bx-p*14,by-p*2,p*3,p*4,nCol);
-  pr(bx-p*15,by,p*2,p*3,'#aa8800');
-  // Sol omuz dişleri
-  for(var i=0;i<4;i++)pr(bx-p*14+i*p,by-p*5,p,p*(i%2===0?2:1.5),nCol);
-  // Sağ omuz bloğu
-  pr(bx+p*5,by-p*4,p*7,p*5,nCol);
-  pr(bx+p*11,by-p*2,p*3,p*4,nCol);
-  pr(bx+p*13,by,p*2,p*3,'#aa8800');
-  for(var i=0;i<4;i++)pr(bx+p*5+i*p,by-p*5,p,p*(i%2===0?2:1.5),nCol);
+  // ── Dış zırh kabuğu — büyük, halka ──
+  // Dış halka yatay kanat-kabuğu
+  pr(bx-p*12,by-p*4,p*24,p*5,nCol);
+  pr(bx-p*13,by-p*2,p*26,p*3,ca(nCol,0.7));
+  // Dış kabuk dişleri
+  for(var i=0;i<6;i++){
+    pr(bx-p*11+i*p*4,by-p*7,p*2,p*3,nCol);
+    pr(bx-p*10+i*p*4,by-p*8,p,p*2,ca(nCol,0.8));
+  }
 
-  // ── Gövde — masif robot gövdesi ──
-  pr(bx-p*5,by-p*8,p*10,p*18,nCol);   // ana gövde
-  pr(bx-p*6,by-p*5,p*12,p*10,'#553300'); // iç koyu
-  pr(bx-p*4,by-p*7,p*8,p*16,'#aa7700'); // orta panel
-  // Gövde çizgileri (yatay panel ayırıcıları)
-  for(var i=0;i<5;i++)pr(bx-p*4,by-p*6+i*p*2,p*8,Math.ceil(p*0.4),'#221100');
-  // Göğüs reaktör
+  // ── Gövde — böcek segmentli ──
+  pr(bx-p*5,by-p*8,p*10,p*14,nCol);    // ana torso
+  pr(bx-p*4,by-p*7,p*8,p*12,'#443300'); // iç renk
+  pr(bx-p*3,by-p*6,p*6,p*10,'#665500'); // orta panel
+  // Segment çizgileri (böcek halkalar)
+  for(var i=0;i<5;i++){
+    pr(bx-p*4,by-p*5+i*p*2,p*8,Math.ceil(p*0.5),'#332200');
+    pr(bx-p*3,by-p*4.5+i*p*2,p*6,Math.ceil(p*0.3),ca(nCol,0.4));
+  }
+
+  // ── Kafa — uzaylı böcek kafası ──
+  pr(bx-p*4,by-p*18,p*8,p*10,nCol);   // kafa
+  pr(bx-p*3,by-p*17,p*6,p*8,'#443300'); // yüz paneli
+  pr(bx-p*5,by-p*20,p*10,p*2,nCol);   // alın
+  // Mandibles (çenenin iki yanı)
+  pr(bx-p*7,by-p*15,p*3,p*5,nCol);
+  pr(bx+p*4,by-p*15,p*3,p*5,nCol);
+  pr(bx-p*8,by-p*12,p*2,p*4,nCol);
+  pr(bx+p*6,by-p*12,p*2,p*4,nCol);
+  X.shadowColor='#f80';X.shadowBlur=10;
+  pr(bx-p*9,by-p*11,p*2,p,ft4<2?'#f80':'#ff0'); // mandible uç sol
+  pr(bx+p*7,by-p*11,p*2,p,ft4<2?'#ff0':'#f80'); // mandible uç sağ
+  X.shadowColor=nCol;X.shadowBlur=10;
+  // Kafa boynuzları — üstte
+  pr(bx-p*3,by-p*22,p,p*4,nCol);
+  pr(bx+p*2,by-p*22,p,p*4,nCol);
+  pr(bx-p*2,by-p*24,p,p*2,nCol);
+  pr(bx+p,by-p*24,p,p*2,nCol);
+  // Boynuz ucu parlaması
+  X.shadowColor='#ff0';X.shadowBlur=12;
+  pr(bx-p*3,by-p*26,p*2,p,fl?'#ff0':'nCol');
+  pr(bx+p*2,by-p*26,p*2,p,fl?nCol:'#ff0');
+  X.shadowColor=nCol;X.shadowBlur=8;
+
+  // ── Bileşik gözler — altıgen ızgara ──
   X.shadowColor='#f00';X.shadowBlur=16;
-  pr(bx-p*2,by-p*2,p*4,p*4,ft4<2?'#f00':'#ff4400');
-  pr(bx-p,by-p,p*2,p*2,ft4<2?'#ff0':'#fff');
-  pr(bx-p*3,by-p,p,p,ft4%2===0?'#f00':'#ff0'); // sol anten ışığı
-  pr(bx+p*2,by-p,p,p,ft4%2===0?'#ff0':'#f00'); // sağ
-  X.shadowColor=nCol;X.shadowBlur=10;
+  // Sol göz bölgesi
+  var lEyePos=[[-3.5,-17],[-2.5,-16],[-4,-16],[-3,-15],[-2,-15]];
+  for(var i=0;i<lEyePos.length;i++){
+    pr(bx+lEyePos[i][0]*p,by+lEyePos[i][1]*p,p,p,ft4===i%4?'#f00':'#700');
+  }
+  // Sağ göz bölgesi
+  var rEyePos=[[2.5,-17],[1.5,-16],[3,-16],[2,-15],[1,-15]];
+  for(var i=0;i<rEyePos.length;i++){
+    pr(bx+rEyePos[i][0]*p,by+rEyePos[i][1]*p,p,p,ft4===i%4?'#ff4':'#770');
+  }
+  X.shadowBlur=0;
 
-  // ── Kafa — korkunç dev robot kafası ──
-  pr(bx-p*5,by-p*18,p*10,p*10,nCol);  // kafa ana kutu
-  pr(bx-p*6,by-p*16,p*12,p*6,'#553300'); // kafa yüz paneli
-  pr(bx-p*4,by-p*22,p*8,p*4,nCol);   // tepe
-  // Kafa antenleri
-  pr(bx-p*5,by-p*24,p,p*4,'#aa8800'); // sol anten
-  pr(bx+p*4,by-p*24,p,p*4,'#aa8800'); // sağ anten
-  X.shadowColor='#f00';X.shadowBlur=14;
-  pr(bx-p*5,by-p*26,p*2,p*2,fl?'#f00':'#ff4'); // sol anten ışığı
-  pr(bx+p*4,by-p*26,p*2,p*2,fl?'#ff4':'#f00'); // sağ
-  X.shadowColor=nCol;X.shadowBlur=10;
-  // Yüz — 2 dev göz, ağız
-  // Sol göz
-  pr(bx-p*4,by-p*17,p*3,p*3,'#1a0500');
-  X.shadowColor='#f00';X.shadowBlur=18;
-  pr(bx-p*4,by-p*17,p*3,p*3,ft4<2?'#f00':'#ff4400');
-  pr(bx-p*3.5,by-p*16.5,p*2,p*2,ft4<2?'#ff0':'#fff');
-  // Sağ göz
-  pr(bx+p,by-p*17,p*3,p*3,'#1a0500');
-  pr(bx+p,by-p*17,p*3,p*3,ft4<2?'#ff4400':'#f00');
-  pr(bx+p*1.5,by-p*16.5,p*2,p*2,ft4<2?'#fff':'#ff0');
-  X.shadowColor=nCol;X.shadowBlur=8;
-  // Ağız — dişler
-  pr(bx-p*3,by-p*13,p*6,p,'#1a0500'); // ağız boşluğu
-  for(var i=0;i<6;i++)pr(bx-p*3+i*p,by-p*13,Math.ceil(p*0.7),p*(i%2===0?1:0.6),i%2===0?nCol:'#553300');
-  // Burun (merkez sensör)
-  pr(bx-p*0.5,by-p*15,p,p,ft4%2===0?nCol:'#553300');
+  // ── 3 çift kol (6 kol) ──
+  X.shadowColor=nCol;X.shadowBlur=6;
+  var armData=[
+    [-5,-2, -9,-5, -13,-4],
+    [-5,0,  -9,2,  -13,5],
+    [-5,2,  -9,6,  -12,10],
+    [4,-2,  8,-5,  12,-4],
+    [4,0,   8,2,   12,5],
+    [4,2,   8,6,   11,10],
+  ];
+  for(var ai=0;ai<armData.length;ai++){
+    var A=armData[ai];
+    X.strokeStyle=nCol;X.lineWidth=Math.ceil(p*(ai<3?1.2:1.0));
+    X.beginPath();X.moveTo(bx+A[0]*p,by+A[1]*p);X.lineTo(bx+A[2]*p,by+A[3]*p);X.stroke();
+    X.strokeStyle=ca(nCol,0.7);X.lineWidth=Math.ceil(p*0.7);
+    X.beginPath();X.moveTo(bx+A[2]*p,by+A[3]*p);X.lineTo(bx+A[4]*p,by+A[5]*p);X.stroke();
+    // Eklem nokta
+    pr(bx+A[2]*p-p/2,by+A[3]*p-p/2,p,p,'#fff');
+    // Kol ucu (çatal pençe)
+    X.strokeStyle=ft4%2===0?'#ff0':nCol;X.lineWidth=Math.ceil(p*0.6);
+    X.beginPath();X.moveTo(bx+A[4]*p,by+A[5]*p);X.lineTo(bx+(A[4]+Math.sign(A[4]))*p,by+(A[5]+1.5)*p);X.stroke();
+    X.beginPath();X.moveTo(bx+A[4]*p,by+A[5]*p);X.lineTo(bx+(A[4]+Math.sign(A[4]))*p,by+(A[5]-0.5)*p);X.stroke();
+  }
 
-  // ── Kollar — dev robot kolları ──
-  // Sol kol
-  pr(bx-p*8,by,p*3,p*6,'#553300');
-  pr(bx-p*9,by+p*4,p*4,p*3,nCol);
-  pr(bx-p*10,by+p*6,p*5,p*2,'#aa8800');
-  // Sol el/yumruk
-  X.shadowColor='#f00';X.shadowBlur=12;
-  pr(bx-p*11,by+p*7,p*5,p*4,nCol);
-  pr(bx-p*12,by+p*8,p*2,p*2,ft4<2?'#f00':'#ff0');
-  X.shadowColor=nCol;X.shadowBlur=10;
-  // Sağ kol
-  pr(bx+p*5,by,p*3,p*6,'#553300');
-  pr(bx+p*5,by+p*4,p*4,p*3,nCol);
-  pr(bx+p*5,by+p*6,p*5,p*2,'#aa8800');
-  X.shadowColor='#f00';X.shadowBlur=12;
-  pr(bx+p*6,by+p*7,p*5,p*4,nCol);
-  pr(bx+p*10,by+p*8,p*2,p*2,ft4<2?'#ff0':'#f00');
-  X.shadowColor=nCol;X.shadowBlur=8;
-
-  // Bacaklar
-  pr(bx-p*3,by+p*10,p*2,p*6,nCol);pr(bx+p,by+p*10,p*2,p*6,nCol);
-  pr(bx-p*4,by+p*15,p*3,p*2,nCol);pr(bx+p,by+p*15,p*3,p*2,nCol);
+  // ── Karın reaktörü ──
+  X.shadowColor='#f80';X.shadowBlur=18;
+  pr(bx-p*2,by-p,p*4,p*4,ft4<2?'#f80':'#ff4400');
+  pr(bx-p,by,p*2,p*2,ft4<2?'#ff0':'#fff');
   X.shadowBlur=0;
 }
 
-// OMEGA — yenilendi: kozmik horror varlık, çok korkunç
+// OMEGA — Antik uzaylı tanrısı, yüzen biyolojik varlık
 function drawOmegaBoss(bx,by,cfg,fl,ft4,p){
   var t=Date.now();
   var col=cfg.col||'#f00';
   var rot2=cfg.rot||0;
 
-  // Dış halka döner
-  X.save();X.translate(bx,by);X.rotate(rot2);
-  X.strokeStyle=col;X.lineWidth=p*1.5;X.shadowBlur=20;X.shadowColor=col;
-  X.beginPath();X.arc(0,0,p*11,0,Math.PI*2);X.stroke();
-  // İkinci halka ters döner
-  X.rotate(-rot2*2);
-  X.strokeStyle='rgba(255,0,0,0.5)';X.lineWidth=p*0.8;
-  X.beginPath();X.arc(0,0,p*13,0,Math.PI*2);X.stroke();
-  // Halka üzerindeki spike'lar
-  X.fillStyle=col;X.shadowBlur=12;
-  for(var i=0;i<8;i++){
-    var sa=i*(Math.PI/4)+rot2;
-    var rx=Math.cos(sa)*p*11,ry=Math.sin(sa)*p*11;
-    pr(rx-p,ry-p,p*2,p*2,col);
-    // spike uçları
-    var sx2=Math.cos(sa)*p*14,sy2=Math.sin(sa)*p*14;
-    pr(sx2-Math.ceil(p/2),sy2-Math.ceil(p/2),p,p,ft4<2?'#fff':'#f88');
+  // ── Yörünge halkaları — dönen enerji hatları ──
+  X.save();X.translate(bx,by);
+  X.strokeStyle=ca(col,0.5);X.lineWidth=p*0.8;X.shadowBlur=10;X.shadowColor=col;
+  X.rotate(rot2*0.7);
+  X.beginPath();X.ellipse(0,0,p*13,p*7,0,0,Math.PI*2);X.stroke();
+  X.rotate(-rot2*1.4);
+  X.beginPath();X.ellipse(0,0,p*11,p*5,Math.PI/3,0,Math.PI*2);X.stroke();
+  // Yörüngede enerji kürecikleri
+  for(var i=0;i<4;i++){
+    var oa=i*(Math.PI/2)+rot2;
+    var orx=Math.cos(oa)*p*12,ory=Math.sin(oa)*p*6;
+    X.fillStyle=ft4===i?'#fff':col;X.shadowBlur=8;
+    X.fillRect(orx-p/2,ory-p/2,p,p);
   }
-  X.restore();
-  X.shadowBlur=0;
+  X.restore();X.shadowBlur=0;
 
-  // ── Gövde — distorted horror kafası ──
-  X.shadowColor=col;X.shadowBlur=14;
-  // Dış çerçeve
-  pr(bx-p*7,by-p*9,p*14,p*18,col);
-  pr(bx-p*8,by-p*6,p*16,p*10,'#440000');
-  pr(bx-p*6,by-p*8,p*12,p*16,'#660000');
-  // İç panel
-  pr(bx-p*5,by-p*7,p*10,p*14,'#220000');
+  // ── Ana gövde — biyolojik uzaylı ──
+  // Pulsing outer membrane
+  var pulse=Math.sin(t*0.006)*p*0.5;
+  X.shadowColor=col;X.shadowBlur=16;
+  pr(bx-p*7+pulse,by-p*9,p*14-pulse*2,p*18,col);
+  pr(bx-p*8,by-p*6,p*16,p*10,'#1a0000');
+  pr(bx-p*6,by-p*8,p*12,p*16,'#2d0000');
+  pr(bx-p*5,by-p*7,p*10,p*14,'#440000');
+  // Biyolojik doku deseni (dikey damarlar)
+  X.shadowBlur=6;
+  for(var i=0;i<5;i++){
+    var dv=0.15+0.1*Math.sin(t*0.005+i);
+    pr(bx-p*4+i*p*2,by-p*6,Math.ceil(p*0.5),p*12,ca(col,dv));
+  }
+  // Yatay damarlar
+  for(var i=0;i<6;i++){
+    pr(bx-p*5,by-p*6+i*p*2,p*10,Math.ceil(p*0.4),ca(col,0.1+0.08*Math.sin(t*0.004+i)));
+  }
 
-  // ── Yüz — 3 göz, çarpık ağız ──
+  // ── Üç büyük göz — üçgen dizilim, en korkutucu ──
+  X.shadowColor='#f00';X.shadowBlur=22;
   // Sol göz
-  pr(bx-p*5,by-p*6,p*3,p*4,'#000');
-  X.shadowColor='#f00';X.shadowBlur=20;
-  pr(bx-p*5,by-p*6,p*3,p*4,ft4<2?'#f00':'#800');
-  pr(bx-p*4.5,by-p*5.5,p*2,p*3,ft4<2?'#ff4':'#f00');
-  pr(bx-p*4,by-p*5,p,p*2,fl?'#fff':'#ff0');
-  // Merkez göz — büyük, parlayan
-  pr(bx-p*2,by-p*7,p*4,p*5,'#000');
-  X.shadowBlur=25;
-  pr(bx-p*2,by-p*7,p*4,p*5,ft4<2?'#f00':'#ff2200');
-  pr(bx-p,by-p*6.5,p*2,p*4,ft4<2?'#ff8':'#ff0');
-  pr(bx-p*0.5,by-p*6,p,p*3,fl?'#fff':'#ff4');
+  pr(bx-p*5,by-p*7,p*4,p*5,'#000');
+  pr(bx-p*4.5,by-p*6.5,p*3,p*4,ft4<2?'#800':'#600');
+  pr(bx-p*4,by-p*6,p*2,p*3,ft4<2?'#f00':'#aa0000');
+  pr(bx-p*3.5,by-p*5.5,p,p*2,fl?'#fff':'#ff4');
   // Sağ göz
-  pr(bx+p*2,by-p*6,p*3,p*4,'#000');
-  X.shadowBlur=20;
-  pr(bx+p*2,by-p*6,p*3,p*4,ft4<2?'#800':'#f00');
-  pr(bx+p*2.5,by-p*5.5,p*2,p*3,ft4<2?'#f00':'#ff4');
-  pr(bx+p*3,by-p*5,p,p*2,fl?'#ff0':'#fff');
+  pr(bx+p,by-p*7,p*4,p*5,'#000');
+  pr(bx+p*1.5,by-p*6.5,p*3,p*4,ft4<2?'#600':'#800');
+  pr(bx+p*2,by-p*6,p*2,p*3,ft4<2?'#aa0000':'#f00');
+  pr(bx+p*2.5,by-p*5.5,p,p*2,fl?'#ff4':'#fff');
+  // Orta alt göz — en büyük, en korkunç
+  X.shadowBlur=28;
+  pr(bx-p*2.5,by-p*2,p*5,p*6,'#000');
+  pr(bx-p*2,by-p*1.5,p*4,p*5,ft4<2?'#f00':'#cc0000');
+  pr(bx-p*1.5,by-p,p*3,p*4,ft4<2?'#ff2200':'#f00');
+  pr(bx-p,by-p*0.5,p*2,p*3,ft4%2===0?'#fff':'#ff4');
+  pr(bx-p*0.5,by,p,p*2,fl?'#fff':'#ff0');
   X.shadowColor=col;X.shadowBlur=10;
 
-  // ── Ağız — çarpık, dişli ──
-  pr(bx-p*4,by-p*1,p*8,p*2,'#000');
-  // Dişler
+  // ── Ağız — iri, enerjili ──
+  pr(bx-p*4,by+p*4,p*8,p*2,'#000');
   for(var i=0;i<8;i++){
-    pr(bx-p*4+i*p,by-p,p,p*(i%2===0?1.5:1),i%2===0?col:'#440000');
-    pr(bx-p*4+i*p,by+p,p,p*(i%2===0?1:1.5),'#440000');
+    pr(bx-p*4+i*p,by+p*4,p,p*(i%2===0?1.5:1),i%2===0?col:'#220000');
+    pr(bx-p*4+i*p,by+p*5.5,p,p*(i%2===0?1:1.5),'#220000');
   }
-  // Ağızdan enerji akıyor
-  X.shadowColor='#f00';X.shadowBlur=14;
-  pr(bx-p*2,by,p*4,p,ft4<2?'rgba(255,50,0,0.8)':'rgba(255,0,0,0.5)');
+  X.shadowColor='#f00';X.shadowBlur=12;
+  pr(bx-p*3,by+p*4.5,p*6,p,ft4<2?'rgba(255,50,0,0.7)':'rgba(200,0,0,0.5)');
 
-  // ── Tentacle kollar — 4 adet, sinüs hareketi ──
-  var tentAngles=[-0.6,-0.3,0.3,0.6];
-  var tentSide=[-1,-1,1,1];
-  for(var ti=0;ti<4;ti++){
-    var tbase_x=bx+(tentSide[ti]*p*6);
-    var tbase_y=by+p*2;
-    var tWave=Math.sin(t*0.004+ti*1.5)*p*2;
-    X.strokeStyle=col;X.lineWidth=Math.ceil(p*1.8);X.shadowBlur=8;X.shadowColor=col;
-    X.beginPath();X.moveTo(tbase_x,tbase_y);
+  // ── 6 tentakül kol — her biri ayrı dalga ──
+  var tentDirs=[
+    {sx:-p*6,sy:p*1, wave:0.8},
+    {sx:-p*5,sy:p*3, wave:1.4},
+    {sx:-p*4,sy:p*5, wave:2.0},
+    {sx:p*5, sy:p*1, wave:0.6},
+    {sx:p*4, sy:p*3, wave:1.2},
+    {sx:p*3, sy:p*5, wave:1.8},
+  ];
+  for(var ti=0;ti<6;ti++){
+    var td=tentDirs[ti];
+    var tw=Math.sin(t*0.005+td.wave)*p*2;
+    var side=ti<3?-1:1;
+    X.strokeStyle=col;X.lineWidth=Math.ceil(p*(1.6-ti*0.1));X.shadowBlur=6;X.shadowColor=col;
+    X.beginPath();
+    X.moveTo(bx+td.sx,by+td.sy);
     X.bezierCurveTo(
-      tbase_x+tentSide[ti]*p*(4+ti),tbase_y+p*3+tWave,
-      tbase_x+tentSide[ti]*p*(7+ti),tbase_y+p*7+tWave*0.5,
-      tbase_x+tentSide[ti]*p*(9+ti),tbase_y+p*(10+ti)+tWave
-    );
-    X.stroke();
-    // Tentacle ucu — taç şeklinde
-    var tx2=tbase_x+tentSide[ti]*p*(9+ti),ty2=tbase_y+p*(10+ti)+tWave;
-    X.fillStyle=ft4<2?'#f00':'#ff4';X.shadowBlur=10;
-    for(var tk=0;tk<3;tk++){
-      var ta=tentAngles[ti]+tk*0.35-0.35;
-      pr(tx2+Math.cos(ta)*p*2-p/2,ty2+Math.sin(ta)*p*2-p/2,p,p,ft4<2?col:'#ff4');
-    }
+      bx+td.sx+side*p*3,by+td.sy+p*3+tw,
+      bx+td.sx+side*p*6,by+td.sy+p*6+tw*0.7,
+      bx+td.sx+side*p*9,by+td.sy+p*9+tw*0.4
+    );X.stroke();
+    // Tentakül ucu (silahlı)
+    var ex=bx+td.sx+side*p*9,ey=by+td.sy+p*9+tw*0.4;
+    X.fillStyle=ft4===ti%4?'#fff':col;X.shadowBlur=8;
+    X.fillRect(ex-p,ey-p,p*2,p*2);
+    X.fillRect(ex+side*p-p/2,ey-p*2,p,p);
   }
-  X.shadowBlur=0;
 
-  // ── Omuz çıkıntıları — yatay iğneler ──
+  // ── Dışarı çıkan kafatası çıkıntılar ──
+  X.shadowColor=col;X.shadowBlur=8;
   for(var i=0;i<3;i++){
-    pr(bx-p*10-i*p,by-p*4+i*p*2,p*(3-i),p*(2-i*0.3),col);
-    pr(bx+p*7+i*p,by-p*4+i*p*2,p*(3-i),p*(2-i*0.3),col);
+    pr(bx-p*8-i*p*0.5,by-p*3+i*p*2,p*(3-i),p*(1.5-i*0.3),col);
+    pr(bx+p*5+i*p*0.5,by-p*3+i*p*2,p*(3-i),p*(1.5-i*0.3),col);
   }
-
-  // ── Merkez enerji çekirdeği ──
-  X.shadowColor='#f00';X.shadowBlur=22;
-  pr(bx-p*2,by+p*3,p*4,p*4,ft4<2?'#f00':'#ff2200');
-  pr(bx-p,by+p*4,p*2,p*2,ft4<2?'#ff0':'#fff');
-  // Çekirdek titreme
-  if(fl){pr(bx-p*3,by+p*3,p,p,'#f00');pr(bx+p*2,by+p*5,p,p,'#f00');}
   X.shadowBlur=0;
 }
 
 function drawBossSprite(bx,by,cfg,scale){
-  var p=PX()*1.3*(scale||1);
+  var p=PX()*0.75*(scale||1);
   var col=(cfg.col||'#f80');
   var design=(cfg.design||'dragon');
   var fl=Math.floor(Date.now()/80)%2;
   var ft4=Math.floor(Date.now()/60)%4;
-  X.shadowBlur=10;X.shadowColor=col;
+  X.shadowBlur=8;X.shadowColor=col;
 
   if(design==='dragon'){
     drawWardenDragon(bx,by,col,fl,ft4,p);
@@ -1023,52 +1082,71 @@ function drawBossSprite(bx,by,cfg,scale){
   }else if(design==='nemesis'){
     drawNemesisBoss(bx,by,col,fl,ft4,p);
   }else{
-    // OMEGA
     drawOmegaBoss(bx,by,cfg,fl,ft4,p);
   }
   X.shadowBlur=0;
 }
 
-// ── BOSS HEALTH BAR — Ekranın ALT kısmında, oyuncu alanının üstünde ──
+// ── BOSS HEALTH BAR — Ekranın ÜSTÜNDE, şık retro tasarım ──
 function drawBossHealthBar(){
   if(!boss)return;
   var ph=boss.hp/boss.mhp;
   var px=PX();
-  // Bar ekranın alt kısmında — oyuncuyla boss arasındaki boşlukta
-  var bw=Math.floor(W()*0.80),bx2=W()/2-bw/2;
-  var barY=H()-px*12; // ekran altından px*12 yukarıda
-  var barH=px*2+1;
-
-  // Hafif arka plan paneli
-  X.fillStyle='rgba(0,0,0,0.7)';
-  X.fillRect(bx2-px,barY-px*3,bw+px*2,barH+px*4);
-
-  // Segmentli dolgu
-  X.fillStyle='#111';X.fillRect(bx2,barY,bw,barH);
-  var segW=px*3,segGap=Math.ceil(px*0.5);
-  var totalSegs=Math.floor(bw/(segW+segGap));
-  var filledSegs=Math.round(totalSegs*ph);
-  var segCol=ph>.6?'#0f0':ph>.3?'#ff0':'#f33';
-  for(var si=0;si<totalSegs;si++){
-    X.fillStyle=si<filledSegs?segCol:'#1a1a1a';
-    X.fillRect(bx2+si*(segW+segGap),barY,segW,barH);
-  }
-  // Çerçeve
-  X.strokeStyle=boss.col;X.lineWidth=1;X.strokeRect(bx2-1,barY-1,bw+2,barH+2);
-  // Köşe pikseller
+  var cw=W();
+  var barW=Math.floor(cw*0.70);
+  var bx=cw/2-barW/2;
+  var barY=3;
+  var barH=px*2;
+  var nameH=px*3;
+  // Koyu arka plan paneli
+  X.fillStyle='rgba(0,0,0,0.85)';
+  X.fillRect(bx-px*2,barY-px,barW+px*4,nameH+barH+px*3);
+  // Panel kenarlığı (pixel köşeler)
   X.fillStyle=boss.col;
-  X.fillRect(bx2-px,barY-px,px,px);X.fillRect(bx2+bw,barY-px,px,px);
-  X.fillRect(bx2-px,barY+barH,px,px);X.fillRect(bx2+bw,barY+barH,px,px);
-  // Boss adı — sol taraf
-  X.textAlign='left';X.fillStyle=boss.col;
-  X.font='bold '+Math.floor(W()/36)+'px Courier New';
-  X.shadowBlur=5;X.shadowColor=boss.col;
-  X.fillText('[ '+boss.name+' ]',bx2,barY-px);
-  // HP yüzdesi — sağ taraf
-  X.fillStyle='#888';X.font=Math.floor(W()/40)+'px Courier New';
-  X.textAlign='right';
-  X.fillText(Math.ceil(ph*100)+'%',bx2+bw,barY-px);
-  X.shadowBlur=0;X.textAlign='left';
+  X.fillRect(bx-px*2,barY-px,px,px);          // sol üst köşe
+  X.fillRect(bx+barW+px,barY-px,px,px);        // sağ üst köşe
+  X.fillRect(bx-px*2,barY+nameH+barH+px,px,px);// sol alt köşe
+  X.fillRect(bx+barW+px,barY+nameH+barH+px,px,px);// sağ alt köşe
+  // Üst kenar çizgisi
+  X.fillStyle=ca(boss.col,0.6);
+  X.fillRect(bx-px,barY-px,barW+px*2,Math.ceil(px/2));
+  // Boss adı — merkezde, renkli
+  X.textAlign='center';
+  X.font='bold '+Math.floor(cw/32)+'px Courier New';
+  X.shadowBlur=6;X.shadowColor=boss.col;
+  X.fillStyle=boss.col;
+  X.fillText('[ '+boss.name+' ]',cw/2,barY+nameH-px*0.5);
+  X.shadowBlur=0;
+  // Bar arka planı
+  X.fillStyle='#0a0a0a';
+  X.fillRect(bx,barY+nameH,barW,barH);
+  // Segmentli HP bar
+  var segW=Math.max(2,Math.floor(px*2.5));
+  var segGap=Math.ceil(px*0.4);
+  var totalSegs=Math.floor(barW/(segW+segGap));
+  var filledSegs=Math.round(totalSegs*ph);
+  var segCol=ph>.6?'#00ff44':ph>.3?'#ffaa00':'#ff2200';
+  for(var si=0;si<totalSegs;si++){
+    var sx=bx+si*(segW+segGap);
+    if(si<filledSegs){
+      X.fillStyle=segCol;
+      X.fillRect(sx,barY+nameH,segW,barH);
+      // Üst parlama
+      X.fillStyle='rgba(255,255,255,0.3)';
+      X.fillRect(sx,barY+nameH,segW,Math.ceil(barH/3));
+    }else{
+      X.fillStyle='#111';
+      X.fillRect(sx,barY+nameH,segW,barH);
+    }
+  }
+  // Alt kenar çizgisi
+  X.fillStyle=ca(boss.col,0.4);
+  X.fillRect(bx-px,barY+nameH+barH,barW+px*2,Math.ceil(px/2));
+  // HP yüzdesi — sağ üstte
+  X.font=Math.floor(cw/42)+'px Courier New';
+  X.fillStyle='#777';X.textAlign='right';
+  X.fillText(Math.ceil(ph*100)+'%',bx+barW+px,barY+nameH-px*0.5);
+  X.textAlign='left';X.shadowBlur=0;
 }
 
 function drawBoss(){
@@ -1397,36 +1475,35 @@ function drawWebBullet(b){
 
 function drawNemesisBullet(b){
   var p=PX();
-  var ft=Math.floor(Date.now()/55)%4;
-  X.save();X.translate(Math.floor(b.x),Math.floor(b.y));
-  X.shadowBlur=16;X.shadowColor='#ff0';
-  // Yıldırım elektrik etkisi — dikey inen zikzak
-  // Dış parlama halosu
-  X.fillStyle='rgba(255,255,100,0.12)';
-  X.fillRect(-p*3,-p*5,p*6,p*10);
-  // Ana yıldırım — zigzag pixel art, dikey
-  var lc=ft<2?'#fff':'#ff0';
-  var lc2=ft<2?'#ff0':'#ffe066';
-  // Gövde zikzak (yukarıdan aşağı)
-  pr(-p,  -p*4, p*2, p,   lc);
-  pr(0,   -p*3, p*2, p,   lc2);
-  pr(-p,  -p*2, p*2, p,   lc);
-  pr(0,   -p,   p*2, p,   lc2);
-  pr(-p,  0,    p*2, p,   lc);
-  pr(0,   p,    p*2, p,   lc2);
-  pr(-p,  p*2,  p*2, p,   lc);
-  pr(0,   p*3,  p*2, p,   lc2);
-  // Yatay çakma efektleri
-  pr(-p*2,-p*3, p,   Math.ceil(p*0.6), lc2);
-  pr(p,   -p*1, p,   Math.ceil(p*0.6), lc);
-  pr(-p*2, p,   p,   Math.ceil(p*0.6), lc2);
-  pr(p,    p*3, p,   Math.ceil(p*0.6), lc);
-  // Parlak merkez (titreyen)
-  var cc=ft%2===0?'#fff':'#ffff88';
-  pr(-Math.ceil(p/2),-p*2,p,p,cc);
-  pr(-Math.ceil(p/2),0,p,p,cc);
-  pr(-Math.ceil(p/2),p*2,p,p,cc);
-  X.shadowBlur=0;X.restore();
+  var t=Date.now();
+  var rot=t*0.012; // sürekli döner
+  var ft=Math.floor(t/60)%4;
+  X.save();
+  X.translate(Math.floor(b.x),Math.floor(b.y));
+  X.shadowBlur=14;X.shadowColor='#ff0';
+  // Dış dönen yıldız kolları (4 adet, pixel art)
+  X.save();X.rotate(rot);
+  for(var arm=0;arm<4;arm++){
+    X.save();X.rotate(arm*Math.PI/2);
+    pr(-Math.ceil(p/2),-p*3,p,p*2,ft===arm?'#fff':'#ff0');
+    pr(-Math.ceil(p/2),-p*5,p,p,ft===arm?'#ffff88':'#ff4');
+    X.restore();
+  }
+  X.restore();
+  // İç dönen (ters yön)
+  X.save();X.rotate(-rot*0.7);
+  for(var arm=0;arm<4;arm++){
+    X.save();X.rotate(arm*Math.PI/2+Math.PI/4);
+    pr(-Math.ceil(p/2),-p*2,p,p,ft===arm?'#ff4':'#aa6600');
+    X.restore();
+  }
+  X.restore();
+  // Merkez çekirdek (titreyen)
+  X.shadowColor='#ff0';X.shadowBlur=18;
+  pr(-p,-p,p*2,p*2,ft%2===0?'#ff0':'#fff');
+  pr(-Math.ceil(p/2),-Math.ceil(p/2),p,p,'#fff');
+  X.shadowBlur=0;
+  X.restore();
 }
 
 function drawOmegaBullet(b){
@@ -1710,7 +1787,7 @@ function resetAll(){
   introActive=false;introT=0;introCfg=null;
   winTimer=0;winParts=[];
   bullets=[];eBullets=[];enemies=[];parts=[];pups=[];floats=[];rockets=[];spawnQueue=[];spawnTimer=0;pendingGroups=[];
-  boss=null;bDir=1;sCool=0;rTimer=0;xTimer=0;rocketReady=0;
+  boss=null;bDir=1;sCool=0;rTimer=0;xTimer=0;rocketReady=0;screenShake=0;
   shieldCd=0;rocketCdA=0;
   updateAbilityBtns();
   paused=false;PB.textContent='⏸';
@@ -1783,7 +1860,7 @@ function update(){
       ft(W()/2,H()/2,'+1 CAN! SON ŞANS!','#f55');
       eBullets=[];bullets=[];pups=[];
       introCfg={name:'OMEGA',col:OMEGA.col,hp:OMEGA.hp,maxHp:OMEGA.hp,design:'omega',pattern:'omega'};
-      introT=260;introActive=true;sBossIn();phase='bossIntro';
+      introT=380;introActive=true;sBossIn();phase='bossIntro';
     }
     return;
   }
@@ -1809,6 +1886,7 @@ function update(){
   if(shieldCd>0)shieldCd--;
   if(rocketCdA>0)rocketCdA--;
   if(waveFlash>0)waveFlash--;
+  if(screenShake>0)screenShake--;
   updateAbilityBtns();
   for(var i=0;i<bullets.length;i++){bullets[i].x+=bullets[i].vx;bullets[i].y+=bullets[i].vy;}
   for(var i=0;i<eBullets.length;i++){eBullets[i].x+=eBullets[i].vx;eBullets[i].y+=eBullets[i].vy;}
@@ -1892,7 +1970,7 @@ function update(){
   if(P.inv<=0){for(var i=eBullets.length-1;i>=0;i--){var b=eBullets[i];
     var hit=b.r?Math.hypot(b.x-P.x,b.y-P.y)<P.w/2+3:Math.abs(b.x-P.x)<P.w/2&&Math.abs(b.y-P.y)<P.h/2;
     if(hit){eBullets.splice(i,1);if(P.shld>0){P.shld=0;burst(P.x,P.y,'#0ff',8);}
-      else{lives--;P.inv=120;sHit();burst(P.x,P.y,'#4af',10);if(lives<=0){if(score>highScore)highScore=score;localStorage.setItem('gd_hs',highScore);state='dead';}}break;}}}
+      else{lives--;P.inv=120;sHit();burst(P.x,P.y,'#4af',10);screenShake=12;if(lives<=0){if(score>highScore)highScore=score;localStorage.setItem('gd_hs',highScore);state='dead';}}break;}}}
   for(var i=pups.length-1;i>=0;i--){
     var pu=pups[i];pu.y+=pu.vy;
     if(pu.y>H()){pups.splice(i,1);continue;}
@@ -2165,8 +2243,13 @@ function draw(){
     drawCRT();return;
   }
   drawStars();
-  if(paused){
-    X.fillStyle='rgba(0,0,0,.65)';X.fillRect(0,0,cw,ch);
+  // Ekran titremesi
+  if(screenShake>0){
+    var sx=Math.floor((Math.random()-.5)*screenShake*1.5);
+    var sy=Math.floor((Math.random()-.5)*screenShake*1.5);
+    X.save();X.translate(sx,sy);
+  }
+  if(paused){    X.fillStyle='rgba(0,0,0,.65)';X.fillRect(0,0,cw,ch);
     X.textAlign='center';X.fillStyle='#ff0';X.font='bold '+Math.floor(cw/10)+'px Courier New';
     X.shadowBlur=12;X.shadowColor='#ff0';X.fillText('DURAKLADI',cw/2,ch/2);X.shadowBlur=0;
     X.fillStyle='#aff';X.font=Math.floor(cw/28)+'px Courier New';X.fillText('⏸ butonuna bas',cw/2,ch/2+42);
@@ -2331,6 +2414,7 @@ function draw(){
     X.shadowBlur=0;X.globalAlpha=1;
   }
   X.textAlign='left';
+  if(screenShake>0)X.restore();
   drawCRT();
 }
 
