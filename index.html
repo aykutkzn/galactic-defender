@@ -2492,21 +2492,8 @@ function draw(){
   drawCRT();
 }
 
-// ── LOOP — sabit 60fps delta accumulator ile ──────────────────────
-// rAF throttle sorununu çözer: dokunuş/bırakma hız değişimi olmaz
-var _lastTs=0,_acc=0,_STEP=1000/60; // 16.67ms per logical frame
-function loop(ts){
-  requestAnimationFrame(loop);
-  if(!_lastTs){_lastTs=ts;}
-  var delta=ts-_lastTs;_lastTs=ts;
-  // Delta'yı sınırla: tab arkaplanında döndükten sonra büyük sıçrama olmasın
-  if(delta>200)delta=_STEP;
-  _acc+=delta;
-  // Biriken zamanı sabit adımlarla tüket (max 3 adım, takılma olmasın)
-  var steps=0;
-  while(_acc>=_STEP&&steps<3){_acc-=_STEP;update();steps++;}
-  draw();
-}
+// ── LOOP ──────────────────────────────────────────────────────────
+function loop(){update();draw();requestAnimationFrame(loop);}
 function go(){
   if(state==='start'){state='play';phase='launch';launchT=420;startMusic();}
   else if(state==='dead'){resetAll();state='play';}
@@ -2515,4 +2502,3 @@ requestAnimationFrame(loop);
 </script>
 </body>
 </html>
-
