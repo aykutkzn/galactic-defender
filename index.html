@@ -12,27 +12,27 @@
 <title>Galactic Defender</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{background:#000;height:100%;}
-body{display:flex;flex-direction:column;align-items:center;width:100vw;height:100vh;height:100dvh;font-family:'Courier New',monospace;overflow:hidden;touch-action:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);}
-#ui{color:#0ff;font-size:12px;display:flex;justify-content:space-between;align-items:center;width:100%;max-width:480px;padding:4px 10px;flex-shrink:0;}
+html{background:#000;height:100%;}
+body{background:#000;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;width:100vw;height:100vh;height:100dvh;font-family:'Courier New',monospace;overflow:hidden;touch-action:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);}
+#ui{color:#0ff;font-size:12px;display:flex;justify-content:space-between;align-items:center;width:100%;max-width:480px;padding:3px 10px;flex-shrink:0;}
 #pauseBtn{background:rgba(0,255,255,.1);border:1px solid rgba(0,255,255,.3);border-radius:4px;color:#0ff;font-size:11px;padding:2px 6px;cursor:pointer;user-select:none;}
 canvas{display:block;touch-action:none;image-rendering:pixelated;flex-shrink:0;}
-#controls{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:480px;padding:6px 16px 8px;flex-shrink:0;}
-#jWrap{position:relative;width:100px;height:100px;}
-#jBase{width:100px;height:100px;border-radius:50%;background:rgba(0,255,255,.07);border:2px solid rgba(0,255,255,.2);position:absolute;}
-#jKnob{width:40px;height:40px;border-radius:50%;background:rgba(0,255,255,.28);border:2px solid #0ff;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
-#rightSide{display:flex;flex-direction:row;align-items:center;gap:6px;}
+#controls{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:480px;padding:4px 14px 6px;flex-shrink:0;}
+#jWrap{position:relative;width:104px;height:104px;}
+#jBase{width:104px;height:104px;border-radius:50%;background:rgba(0,255,255,.07);border:2px solid rgba(0,255,255,.2);position:absolute;}
+#jKnob{width:42px;height:42px;border-radius:50%;background:rgba(0,255,255,.28);border:2px solid #0ff;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+#rightSide{display:flex;flex-direction:row;align-items:center;gap:7px;}
 #abilities{display:flex;flex-direction:column;gap:5px;align-items:center;}
-.aBtn{border-radius:50%;font-size:16px;cursor:pointer;user-select:none;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid;transition:opacity .2s;width:48px;height:48px;}
-.aBtn span{font-size:6px;margin-top:1px;font-family:'Courier New',monospace;letter-spacing:-.5px;}
+.aBtn{border-radius:50%;font-size:17px;cursor:pointer;user-select:none;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid;transition:opacity 0.2s;width:50px;height:50px;}
+.aBtn span{font-size:7px;margin-top:1px;font-family:'Courier New',monospace;letter-spacing:-0.5px;}
 #shieldBtn{background:rgba(0,255,255,.15);border-color:#0ff;color:#0ff;}
 #shieldBtn:active{background:rgba(0,255,255,.45);}
 #rocketBtn{background:rgba(255,150,0,.15);border-color:#f90;color:#f90;}
 #rocketBtn:active{background:rgba(255,150,0,.45);}
-.aBtn.cooling{opacity:.4;}
-#activePups{display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;}
-.pupIcon{font-size:20px;line-height:1;}
-#fireBtn{width:72px;height:72px;border-radius:50%;background:rgba(255,50,50,.2);border:2px solid #f55;color:#f55;font-size:22px;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:center;}
+.aBtn.cooling{opacity:0.4;}
+#activePups{display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center;}
+.pupIcon{font-size:20px;line-height:1;text-shadow:0 0 8px currentColor;}
+#fireBtn{width:74px;height:74px;border-radius:50%;background:rgba(255,50,50,.2);border:2px solid #f55;color:#f55;font-size:23px;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:center;}
 #fireBtn:active{background:rgba(255,50,50,.45);}
 </style>
 </head>
@@ -65,11 +65,8 @@ var C=document.getElementById('c'),X=C.getContext('2d');
 X.imageSmoothingEnabled=false;
 function resize(){
   var uH=document.getElementById('ui').offsetHeight||28;
-  var cH=document.getElementById('controls').offsetHeight||118;
-  var totalH=window.innerHeight;
-  var safeTop=parseInt(getComputedStyle(document.body).paddingTop)||0;
-  var safeBot=parseInt(getComputedStyle(document.body).paddingBottom)||0;
-  var av=totalH-uH-cH-safeTop-safeBot-2;
+  var cH=document.getElementById('controls').offsetHeight||116;
+  var av=window.innerHeight-uH-cH-2;
   var mw=Math.min(window.innerWidth,480);
   C.width=Math.floor(mw);
   C.height=Math.max(200,Math.floor(av));
@@ -271,66 +268,93 @@ function drawAstronaut(a){
   X.save();
   X.translate(Math.floor(a.x),Math.floor(a.y));
   X.rotate(a.rot);
-  X.globalAlpha=0.50+0.08*Math.sin(a.tw/25);
+  X.globalAlpha=0.55+0.10*Math.sin(a.tw/25);
+  var lit=Math.sin(a.tw/20);
 
-  var W1='#dde',W2='#bbc',RED='#e03060',BLU='#3858d0',VIZ='#100840';
+  // Kıyafet rengi
+  var white='#e0e0e0';
+  var white2='#c8c8c8';
+  var dark='#1a1a2e';
+  var red='#f03060';
+  var blue='#4060d0';
+  var vizorC='#1a1060';
 
-  // Bacaklar
-  pr(-p*2,p*6,p*2,p*3,W1);pr(0,p*6,p*2,p*3,W1);
-  pr(-p*3,p*8.5,p*3,p,W2);pr(0,p*8.5,p*3,p,W2);
-  pr(-p*2,p*7.5,p*4,Math.ceil(p*.5),RED);
+  // ── Bacaklar ──
+  pr(-p*2,p*6,p*2,p*3,white);   // sol bacak
+  pr(0,p*6,p*2,p*3,white2);     // sağ bacak
+  // Kırmızı kemer çizgisi (bacak arası)
+  pr(-p*2,p*7.5,p*4,Math.ceil(p*0.5),red);
+  // Ayaklar
+  pr(-p*3,p*8.5,p*3,p,white2);
+  pr(0,p*8.5,p*3,p,white2);
 
-  // Gövde
-  pr(-p*3,p*2,p*6,p*4,W1);
-  pr(-p*3,p*4,p*6,Math.ceil(p*.5),RED);pr(-p*3,p*2.4,p*6,Math.ceil(p*.4),RED);
-  pr(-p*1.5,p*2.5,p*3,p*2,W2);
-  pr(-p*1.2,p*2.8,p,Math.ceil(p*.7),BLU);pr(p*.2,p*2.8,p,Math.ceil(p*.7),RED);
+  // ── Gövde ──
+  pr(-p*3,p*2,p*6,p*4,white);
+  // Kırmızı gövde şeritleri
+  pr(-p*3,p*4,p*6,Math.ceil(p*0.6),red);
+  pr(-p*3,p*2.5,p*6,Math.ceil(p*0.5),red);
+  // Göğüs paneli (renkli düğmeler)
+  pr(-p*1.5,p*2.5,p*3,p*2,white2);
+  pr(-p*1.2,p*2.8,p,Math.ceil(p*0.8),blue);   // mavi düğme
+  pr(p*0.2,p*2.8,p,Math.ceil(p*0.8),red);      // kırmızı düğme
 
-  // Kollar
-  pr(-p*5,p*2,p*2,p*2.5,W1);pr(-p*6,p*3.5,p*2,p*2,W2);pr(-p*6.5,p*5,p*2.5,p*2,W1);
-  pr(p*3,p*2,p*2,p*2.5,W1);pr(p*3.5,p*3.5,p*2,p*2,W2);pr(p*3,p*5,p*2.5,p*2,W1);
+  // ── Kollar ──
+  // Sol kol (serbest)
+  pr(-p*5,p*2,p*2,p*2.5,white);
+  pr(-p*6,p*3.5,p*2,p*2,white2);
+  // Sol el (yumruk, balon tutmuyor)
+  pr(-p*6.5,p*5,p*2.5,p*2,white);
+  // Sağ kol (balonu tutuyor)
+  pr(p*3,p*2,p*2,p*2.5,white);
+  pr(p*3.5,p*3.5,p*2,p*2,white2);
+  // Sağ el
+  pr(p*3,p*5,p*2.5,p*2,white);
 
-  // Kask
-  pr(-p*3,p*-4,p*6,p*6,W1);
-  pr(-p*3.5,p*-2.5,p*7,p*4,W1);
-  pr(-p*3,p*-5,p*6,p,W1);
-  pr(-p*3.5,p*.5,p*7,Math.ceil(p*.6),RED);
-  pr(-p*3.5,p*-2.5,p*7,Math.ceil(p*.5),RED);
+  // ── Kafa (kask) ──
+  pr(-p*3,p*-4,p*6,p*6,white);   // kask dış
+  pr(-p*3.5,p*-2.5,p*7,p*4,white); // kask yanlara genişler
+  pr(-p*3,p*-5,p*6,p,white);     // kask üstü
+  // Kask kırmızı şeritler
+  pr(-p*3.5,p*0.5,p*7,Math.ceil(p*0.6),red);
+  pr(-p*3.5,p*-2.5,p*7,Math.ceil(p*0.5),red);
+  // Vizör (büyük oval, koyu)
+  pr(-p*2,p*-3.5,p*4,p*5,vizorC);
+  // Vizör iç renk (eflatun menekşe)
+  pr(-p*1.5,p*-3,p*3,p*4,'#2a1866');
+  // Vizör parlaması
+  pr(-p*1.8,p*-3.2,p*1.2,p*1.5,'rgba(200,180,255,0.4)');
+  pr(-p,p*-3.5,p*0.6,p,'rgba(255,255,255,0.3)');
+  // Kask yan detaylar
+  pr(-p*3.5,p*-1.5,p,p*2,'rgba(255,255,255,0.2)');
 
-  // Vizör
-  pr(-p*2,p*-3.5,p*4,p*5,VIZ);
-  pr(-p*1.5,p*-3,p*3,p*4,'#1e1060');
-  pr(-p*1.8,p*-3.2,p*1.2,p*1.5,'rgba(160,140,255,0.35)');
-  pr(-p,p*-3.5,Math.ceil(p*.5),p,'rgba(255,255,255,0.25)');
-
-  // Oksijen tüpü
-  pr(p*2.8,p*-.5,Math.ceil(p*.7),p*2.5,'#aaa');
-
-  // Balon (ipe bağlı, jupiter çizgili)
-  var bpx=p*3.5,bpy=-p*11,bR=p*3;
-  X.strokeStyle='rgba(200,200,200,0.55)';X.lineWidth=Math.max(1,Math.ceil(p*.28));
-  X.beginPath();X.moveTo(p*4,p*5);X.bezierCurveTo(p*5.5,p*0,p*5.5,-p*5,bpx,bpy+bR);X.stroke();
-
-  // Balon — canvas clip ile düzgün daire içinde çizgiler
-  X.save();
-  X.beginPath();X.arc(bpx,bpy,bR,0,Math.PI*2);X.clip();
-  var bCols=['#cc3300','#dd5500','#ee8800','#ffaa00','#ffcc33','#ffaa00','#ee8800','#dd5500'];
-  var bStrW=bR*2/bCols.length;
-  for(var bi=0;bi<bCols.length;bi++)pr(bpx-bR+bi*bStrW,bpy-bR,bStrW+1,bR*2,bCols[bi]);
-  // Parlaklık
-  X.fillStyle='rgba(255,220,150,0.30)';X.beginPath();X.arc(bpx-bR*.32,bpy-bR*.32,bR*.4,0,Math.PI*2);X.fill();
-  X.restore();
-  // Balon kenarlık
-  X.strokeStyle='rgba(0,0,0,0.45)';X.lineWidth=Math.max(1,p*.55);
+  // ── Balon (sağ elde, ipe bağlı) ──
+  var bpx=p*3.5;  // balon x offset
+  var bpy=-p*12;  // balon y offset (yukarıda)
+  // İp
+  X.strokeStyle='rgba(200,200,200,0.6)';X.lineWidth=Math.max(1,Math.ceil(p*0.3));
+  X.beginPath();X.moveTo(p*4,p*5);X.bezierCurveTo(p*5,p*0,p*5,-p*4,bpx,-p*10);X.stroke();
+  // Balon gövdesi (gezegenli — turuncu-sarı çizgili)
+  var bR=p*3;
+  X.shadowColor='#f80';X.shadowBlur=p*2;
+  // Balon katmanları (çizgili gezegen efekti)
+  var bCols=['#f84000','#f86000','#f8a000','#f8c000','#f8e000','#f8a000','#f84000'];
+  for(var bi=0;bi<bCols.length;bi++){
+    pr(bpx-bR+bi*Math.ceil(bR/3),bpy-bR,Math.ceil(bR/3)+1,bR*2,bCols[bi]);
+  }
+  // Balon daire kırpması efekti (köşe kapatma)
+  X.fillStyle=dark;
+  X.beginPath();X.arc(bpx,bpy,bR+p*0.5,0,Math.PI*2);X.stroke();
+  X.shadowBlur=0;
+  X.strokeStyle='rgba(0,0,0,0.5)';X.lineWidth=Math.max(1,p);
   X.beginPath();X.arc(bpx,bpy,bR,0,Math.PI*2);X.stroke();
-  // İp bağlantısı
-  pr(bpx-Math.ceil(p*.35),bpy+bR-p,Math.ceil(p*.7),p,'#900');
+  // Balon parlaması
+  X.fillStyle='rgba(255,220,150,0.35)';
+  X.beginPath();X.arc(bpx-bR*0.3,bpy-bR*0.3,bR*0.4,0,Math.PI*2);X.fill();
+  // Balon ip bağlantısı
+  pr(bpx-Math.ceil(p*0.4),bpy+bR-p,Math.ceil(p*0.8),p,'#c00');
 
-  // Kask yanıp sönen ışık
-  X.fillStyle='rgba(0,200,220,'+(0.35+.30*Math.sin(a.tw/15))+')';
-  X.fillRect(Math.floor(-p*3.5),Math.floor(p*-1.5),Math.ceil(p*.7),Math.ceil(p*.7));
-
-  X.shadowBlur=0;X.globalAlpha=1;X.restore();
+  X.shadowBlur=0;X.globalAlpha=1;
+  X.restore();
 }
 
 function updateAstronauts(){
@@ -352,13 +376,12 @@ function drawStars(){
     X.fillStyle='rgba(255,255,255,'+(0.18+0.28*Math.abs(Math.sin(s.tw/60*Math.PI)))+')';
     X.fillRect(Math.floor(s.x),Math.floor(s.y),s.s,s.s);
   }
-  // Astronotlar — yıldızlar ile gezegenler arasında
   for(var i=0;i<astronauts.length;i++)drawAstronaut(astronauts[i]);
   for(var i=0;i<planets.length;i++){
     var pl=planets[i];
     X.save();
-    X.shadowBlur=pl.r*0.9;X.shadowColor=ca(pl.col,0.5);
-    X.fillStyle=ca(pl.col,0.2);X.beginPath();X.arc(pl.x,pl.y,pl.r*1.5,0,Math.PI*2);X.fill();
+    // shadowBlur kaldırıldı (çok pahalı) — yarı saydam daire ile glow simüle
+    X.fillStyle=ca(pl.col,0.18);X.beginPath();X.arc(pl.x,pl.y,pl.r*1.5,0,Math.PI*2);X.fill();
     X.fillStyle=pl.col;X.beginPath();X.arc(pl.x,pl.y,pl.r,0,Math.PI*2);X.fill();
     if(pl.detail==='earth'){
       X.fillStyle='#2d7a3a';
@@ -370,25 +393,31 @@ function drawStars(){
       X.fillStyle='rgba(180,60,30,0.5)';
       X.beginPath();X.ellipse(pl.x-pl.r*.2,pl.y+pl.r*.1,pl.r*.3,pl.r*.15,0.5,0,Math.PI*2);X.fill();
     }
-    X.fillStyle='rgba(255,255,255,0.18)';
+    X.fillStyle='rgba(255,255,255,0.16)';
     X.beginPath();X.arc(pl.x-pl.r*.3,pl.y-pl.r*.3,pl.r*.4,0,Math.PI*2);X.fill();
     if(pl.ring){
-      X.shadowBlur=0;
       X.strokeStyle=ca(pl.col,0.6);X.lineWidth=2.5;
       X.beginPath();X.ellipse(pl.x,pl.y,pl.r*2.2,pl.r*.4,Math.PI/5,0,Math.PI*2);X.stroke();
       X.strokeStyle=ca(pl.col,0.3);X.lineWidth=4;
       X.beginPath();X.ellipse(pl.x,pl.y,pl.r*2.6,pl.r*.5,Math.PI/5,0,Math.PI*2);X.stroke();
     }
-    X.shadowBlur=0;X.restore();
+    X.restore();
   }
 }
+var _crtGrad=null,_crtW=0,_crtH=0;
 function drawCRT(){
-  X.save();X.globalAlpha=.03;X.fillStyle='#000';
+  X.save();
+  // Scanlines hafif — performans için her 4px'de bir
+  X.globalAlpha=.025;X.fillStyle='#000';
   for(var y=0;y<H();y+=4)X.fillRect(0,y,W(),2);
   X.globalAlpha=1;
-  var vg=X.createRadialGradient(W()/2,H()/2,H()*.22,W()/2,H()/2,H()*.88);
-  vg.addColorStop(0,'transparent');vg.addColorStop(1,'rgba(0,0,0,.48)');
-  X.fillStyle=vg;X.fillRect(0,0,W(),H());X.restore();
+  // Vignette — gradient'i cache'le, canvas boyutu değişince yenile
+  if(!_crtGrad||_crtW!==W()||_crtH!==H()){
+    _crtW=W();_crtH=H();
+    _crtGrad=X.createRadialGradient(W()/2,H()/2,H()*.22,W()/2,H()/2,H()*.88);
+    _crtGrad.addColorStop(0,'transparent');_crtGrad.addColorStop(1,'rgba(0,0,0,.45)');
+  }
+  X.fillStyle=_crtGrad;X.fillRect(0,0,W(),H());X.restore();
 }
 
 // ── GAME DATA ──────────────────────────────────────────────────
@@ -681,7 +710,7 @@ function drawEnemySprite(e){
     X.shadowColor=glow;X.shadowBlur=8;
     pr(x-p*2,y-p*2,p*2,p*2,c2);   // sol göz dış
     pr(x+p,y-p*2,p*2,p*2,c2);     // sağ göz dış
-    pr(x-p*2+Math.ceil(p*0.3),y-p*2+Math.ceil(p*0.3),Math.ceil(p*1.4),Math.ceil(p*1.4),fl?'#fff':glow); // sol pupil
+    pr(x-p*2+Math.ceil(p*0.3),y-p*2+Math.ceil(p*0.3),Math.ceil(p*1.4),Math.ceil(p*1.4),fl?'#fff':'glow'); // sol pupil
     pr(x+p+Math.ceil(p*0.3),y-p*2+Math.ceil(p*0.3),Math.ceil(p*1.4),Math.ceil(p*1.4),fl?glow:'#fff');    // sağ pupil
     X.shadowBlur=0;
     // Ağız
@@ -866,166 +895,99 @@ function drawCrusherSpider(bx,by,col,fl,ft4,p){
   X.globalAlpha=1;X.shadowBlur=0;
 }
 
-// NEMESIS — Sarı-altın böcek makine: zırhlı gövde, büyük silahlı kollar, anten, dişli ağız
-// Crusher'dan biraz büyük, ekrana sığacak şekilde
+// NEMESIS — Dev uzaylı kral, salyangoz-böcek hibridi, çok uzuvlu
 function drawNemesisBoss(bx,by,col,fl,ft4,p){
   var t=Date.now();
-  var gold='#e8a000';   // altın sarı (ana zırh)
-  var dkGold='#9b6200'; // koyu altın
-  var ltGold='#ffd040'; // açık altın
-  var grey='#888888';   // metalik gri
-  var dkGrey='#444455'; // koyu gri
-  var red='#cc1100';    // kırmızı detay (ağız, ateş)
-  var orange='#ff5500'; // turuncu alev
+  var nCol=col||'#ff0';
 
-  X.shadowColor=gold;X.shadowBlur=8;
+  X.shadowColor=nCol;X.shadowBlur=12;
 
-  // ── Dış yatay kanat-zırh (geniş ama ince) ──
-  // Sol zırh levhası
-  pr(bx-p*11,by-p*2,p*6,p*4,gold);
-  pr(bx-p*12,by-p*1,p*2,p*2,dkGold);
-  // Sol dış zırh dişleri (referanstaki sivri çıkıntılar)
-  pr(bx-p*13,by-p*3,p*2,p*2,gold);
-  pr(bx-p*12,by-p*4,p,p*2,gold);
-  pr(bx-p*13,by-p,p*2,p,dkGold);
-  // Sağ zırh levhası
-  pr(bx+p*5,by-p*2,p*6,p*4,gold);
-  pr(bx+p*10,by-p*1,p*2,p*2,dkGold);
-  // Sağ dış zırh dişleri
-  pr(bx+p*11,by-p*3,p*2,p*2,gold);
-  pr(bx+p*11,by-p*4,p,p*2,gold);
-  pr(bx+p*11,by-p,p*2,p,dkGold);
-
-  // ── Büyük top silahlar — karakterin en belirgin özelliği ──
-  // Sol silah (çift tüp, biyomekanik)
-  var sx=-p*11;
-  // Silah gövdesi (sarı-turuncu segmentli)
-  for(var si=0;si<4;si++){
-    pr(bx+sx-p*0.5,by+p*1.5+si*p*1.5,p*3,p*1.2,si%2===0?gold:dkGold);
-  }
-  pr(bx+sx,by+p*1,p*2,p*8,grey);        // metal silindir
-  pr(bx+sx+p*0.5,by+p*1,p,p*8,dkGrey); // iç gölge
-  pr(bx+sx-p*0.5,by+p*8,p*3,p,grey);   // top ucunda kapak
-  X.shadowColor=ft4<2?orange:gold;X.shadowBlur=10;
-  pr(bx+sx,by+p*9,p*2,p,ft4<2?orange:'#ff8800'); // namlu çıkışı
-  X.shadowColor=gold;X.shadowBlur=6;
-  // Silah üstü sarı spiral (karakteristik)
-  for(var si=0;si<3;si++){
-    pr(bx+sx-p,by+p*2+si*p*2,p,Math.ceil(p*0.7),ltGold);
-    pr(bx+sx+p*2,by+p*2.5+si*p*2,p,Math.ceil(p*0.7),ltGold);
+  // ── Dış zırh kabuğu — büyük, halka ──
+  // Dış halka yatay kanat-kabuğu
+  pr(bx-p*12,by-p*4,p*24,p*5,nCol);
+  pr(bx-p*13,by-p*2,p*26,p*3,ca(nCol,0.7));
+  // Dış kabuk dişleri
+  for(var i=0;i<6;i++){
+    pr(bx-p*11+i*p*4,by-p*7,p*2,p*3,nCol);
+    pr(bx-p*10+i*p*4,by-p*8,p,p*2,ca(nCol,0.8));
   }
 
-  // Sağ silah
-  var sx2=p*9;
-  for(var si=0;si<4;si++){
-    pr(bx+sx2-p*0.5,by+p*1.5+si*p*1.5,p*3,p*1.2,si%2===0?gold:dkGold);
-  }
-  pr(bx+sx2,by+p*1,p*2,p*8,grey);
-  pr(bx+sx2+p*0.5,by+p*1,p,p*8,dkGrey);
-  pr(bx+sx2-p*0.5,by+p*8,p*3,p,grey);
-  X.shadowColor=ft4<2?orange:gold;X.shadowBlur=10;
-  pr(bx+sx2,by+p*9,p*2,p,ft4<2?'#ff8800':orange);
-  X.shadowColor=gold;X.shadowBlur=6;
-  for(var si=0;si<3;si++){
-    pr(bx+sx2-p,by+p*2+si*p*2,p,Math.ceil(p*0.7),ltGold);
-    pr(bx+sx2+p*2,by+p*2.5+si*p*2,p,Math.ceil(p*0.7),ltGold);
-  }
-
-  // ── Merkez gövde ──
-  pr(bx-p*4,by-p*4,p*8,p*10,gold);     // ana gövde
-  pr(bx-p*3,by-p*3,p*6,p*8,dkGold);   // iç panel
+  // ── Gövde — böcek segmentli ──
+  pr(bx-p*5,by-p*8,p*10,p*14,nCol);    // ana torso
+  pr(bx-p*4,by-p*7,p*8,p*12,'#443300'); // iç renk
+  pr(bx-p*3,by-p*6,p*6,p*10,'#665500'); // orta panel
   // Segment çizgileri (böcek halkalar)
-  pr(bx-p*3,by-p*2,p*6,Math.ceil(p*0.5),'#553300');
-  pr(bx-p*3,by,p*6,Math.ceil(p*0.5),'#553300');
-  pr(bx-p*3,by+p*2,p*6,Math.ceil(p*0.5),'#553300');
+  for(var i=0;i<5;i++){
+    pr(bx-p*4,by-p*5+i*p*2,p*8,Math.ceil(p*0.5),'#332200');
+    pr(bx-p*3,by-p*4.5+i*p*2,p*6,Math.ceil(p*0.3),ca(nCol,0.4));
+  }
 
-  // ── Büyük karanlık gözler (referanstaki metalik oval gözler) ──
-  // Göz altlığı (metalik gri zemin)
-  pr(bx-p*4,by-p*4,p*3.5,p*3,grey);
-  pr(bx+p*.5,by-p*4,p*3.5,p*3,grey);
-  // Göz içi (koyu oval)
-  X.fillStyle=dkGrey;
-  X.beginPath();X.ellipse(bx-p*2.5,by-p*2.5,p*1.5,p*1.8,0,0,Math.PI*2);X.fill();
-  X.beginPath();X.ellipse(bx+p*2.5,by-p*2.5,p*1.5,p*1.8,0,0,Math.PI*2);X.fill();
-  // Göz parlaması (karakteristik metalik yansıma)
-  X.fillStyle='rgba(150,180,200,0.55)';
-  X.beginPath();X.ellipse(bx-p*3,by-p*3,p*.6,p*.5,-.4,0,Math.PI*2);X.fill();
-  X.beginPath();X.ellipse(bx+p*2,by-p*3,p*.6,p*.5,-.4,0,Math.PI*2);X.fill();
-  // Göz sarı kenarlığı
-  X.strokeStyle=gold;X.lineWidth=Math.ceil(p*.5);
-  X.beginPath();X.ellipse(bx-p*2.5,by-p*2.5,p*1.8,p*2.1,0,0,Math.PI*2);X.stroke();
-  X.beginPath();X.ellipse(bx+p*2.5,by-p*2.5,p*1.8,p*2.1,0,0,Math.PI*2);X.stroke();
+  // ── Kafa — uzaylı böcek kafası ──
+  pr(bx-p*4,by-p*18,p*8,p*10,nCol);   // kafa
+  pr(bx-p*3,by-p*17,p*6,p*8,'#443300'); // yüz paneli
+  pr(bx-p*5,by-p*20,p*10,p*2,nCol);   // alın
+  // Mandibles (çenenin iki yanı)
+  pr(bx-p*7,by-p*15,p*3,p*5,nCol);
+  pr(bx+p*4,by-p*15,p*3,p*5,nCol);
+  pr(bx-p*8,by-p*12,p*2,p*4,nCol);
+  pr(bx+p*6,by-p*12,p*2,p*4,nCol);
+  X.shadowColor='#f80';X.shadowBlur=10;
+  pr(bx-p*9,by-p*11,p*2,p,ft4<2?'#f80':'#ff0'); // mandible uç sol
+  pr(bx+p*7,by-p*11,p*2,p,ft4<2?'#ff0':'#f80'); // mandible uç sağ
+  X.shadowColor=nCol;X.shadowBlur=10;
+  // Kafa boynuzları — üstte
+  pr(bx-p*3,by-p*22,p,p*4,nCol);
+  pr(bx+p*2,by-p*22,p,p*4,nCol);
+  pr(bx-p*2,by-p*24,p,p*2,nCol);
+  pr(bx+p,by-p*24,p,p*2,nCol);
+  // Boynuz ucu parlaması
+  X.shadowColor='#ff0';X.shadowBlur=12;
+  pr(bx-p*3,by-p*26,p*2,p,fl?'#ff0':'nCol');
+  pr(bx+p*2,by-p*26,p*2,p,fl?nCol:'#ff0');
+  X.shadowColor=nCol;X.shadowBlur=8;
 
-  // ── Merkez Y sembolü / güç çekirdeği ──
-  X.shadowColor='#ff8800';X.shadowBlur=12;
-  pr(bx-Math.ceil(p*.5),by+p,p,p*3,ft4<2?orange:gold);
-  pr(bx-p*1.5,by+p,p,p,ft4<2?gold:orange);
-  pr(bx+p*.5,by+p,p,p,ft4<2?orange:gold);
-  X.shadowBlur=0;
-
-  // ── Kafa — üstte küçük böcek kafası ──
-  pr(bx-p*2,by-p*8,p*4,p*4,gold);      // kafa
-  pr(bx-p*1.5,by-p*7.5,p*3,p*3,dkGold); // yüz
-  // Dişli ağız (referanstaki kırmızı açık ağız)
-  X.shadowColor=red;X.shadowBlur=8;
-  pr(bx-p*1.5,by-p*6,p*3,p*1.5,red);   // ağız içi
-  // Dişler
-  X.fillStyle='#fff';X.shadowBlur=4;
-  for(var i=0;i<3;i++){
-    // Üst dişler
-    pr(bx-p*1.2+i*p,by-p*6,Math.ceil(p*.6),p*.8,'#fff');
-    // Alt dişler
-    pr(bx-p*1+i*p,by-p*5.2,Math.ceil(p*.6),p*.7,'#eee');
+  // ── Bileşik gözler — altıgen ızgara ──
+  X.shadowColor='#f00';X.shadowBlur=16;
+  // Sol göz bölgesi
+  var lEyePos=[[-3.5,-17],[-2.5,-16],[-4,-16],[-3,-15],[-2,-15]];
+  for(var i=0;i<lEyePos.length;i++){
+    pr(bx+lEyePos[i][0]*p,by+lEyePos[i][1]*p,p,p,ft4===i%4?'#f00':'#700');
+  }
+  // Sağ göz bölgesi
+  var rEyePos=[[2.5,-17],[1.5,-16],[3,-16],[2,-15],[1,-15]];
+  for(var i=0;i<rEyePos.length;i++){
+    pr(bx+rEyePos[i][0]*p,by+rEyePos[i][1]*p,p,p,ft4===i%4?'#ff4':'#770');
   }
   X.shadowBlur=0;
-  // Alt çene
-  pr(bx-p*2,by-p*5,p*4,p,gold);
-  // Yanaklar / yan plakalar
-  pr(bx-p*3.5,by-p*7,p*1.5,p*3,gold);
-  pr(bx+p*2,by-p*7,p*1.5,p*3,gold);
 
-  // ── Antenler — karakteristik böcek antenleri ──
-  // Sol anten (dikey, hafif açılı)
-  pr(bx-p*2,by-p*10,Math.ceil(p*.7),p*2,grey);
-  pr(bx-p*3,by-p*12,Math.ceil(p*.7),p*2,grey);
-  pr(bx-p*4,by-p*13,p,p*1.5,grey);
-  // Anten ucu (yuvarlak top)
-  X.shadowColor=ft4<2?gold:ltGold;X.shadowBlur=8;
-  X.fillStyle=ft4<2?gold:ltGold;
-  X.beginPath();X.arc(bx-p*3.5,by-p*14,p*.9,0,Math.PI*2);X.fill();
-  // Sağ anten
-  pr(bx+p*1.5,by-p*10,Math.ceil(p*.7),p*2,grey);
-  pr(bx+p*2.5,by-p*12,Math.ceil(p*.7),p*2,grey);
-  pr(bx+p*3.5,by-p*13,p,p*1.5,grey);
-  X.fillStyle=ft4<2?ltGold:gold;
-  X.beginPath();X.arc(bx+p*4,by-p*14,p*.9,0,Math.PI*2);X.fill();
-  X.shadowBlur=0;
+  // ── 3 çift kol (6 kol) ──
+  X.shadowColor=nCol;X.shadowBlur=6;
+  var armData=[
+    [-5,-2, -9,-5, -13,-4],
+    [-5,0,  -9,2,  -13,5],
+    [-5,2,  -9,6,  -12,10],
+    [4,-2,  8,-5,  12,-4],
+    [4,0,   8,2,   12,5],
+    [4,2,   8,6,   11,10],
+  ];
+  for(var ai=0;ai<armData.length;ai++){
+    var A=armData[ai];
+    X.strokeStyle=nCol;X.lineWidth=Math.ceil(p*(ai<3?1.2:1.0));
+    X.beginPath();X.moveTo(bx+A[0]*p,by+A[1]*p);X.lineTo(bx+A[2]*p,by+A[3]*p);X.stroke();
+    X.strokeStyle=ca(nCol,0.7);X.lineWidth=Math.ceil(p*0.7);
+    X.beginPath();X.moveTo(bx+A[2]*p,by+A[3]*p);X.lineTo(bx+A[4]*p,by+A[5]*p);X.stroke();
+    // Eklem nokta
+    pr(bx+A[2]*p-p/2,by+A[3]*p-p/2,p,p,'#fff');
+    // Kol ucu (çatal pençe)
+    X.strokeStyle=ft4%2===0?'#ff0':nCol;X.lineWidth=Math.ceil(p*0.6);
+    X.beginPath();X.moveTo(bx+A[4]*p,by+A[5]*p);X.lineTo(bx+(A[4]+Math.sign(A[4]))*p,by+(A[5]+1.5)*p);X.stroke();
+    X.beginPath();X.moveTo(bx+A[4]*p,by+A[5]*p);X.lineTo(bx+(A[4]+Math.sign(A[4]))*p,by+(A[5]-0.5)*p);X.stroke();
+  }
 
-  // ── Kol bağlantıları (omuzdan silaha geçiş) ──
-  X.shadowColor=gold;X.shadowBlur=5;
-  // Sol omuz eklemi
-  pr(bx-p*5,by-p*1,p*2,p*3,gold);
-  pr(bx-p*6,by,p,p*2,dkGold);
-  pr(bx-p*7,by-p*1,p*2,p*2,gold);
-  pr(bx-p*9,by,p*2,p*2,grey);
-  // Sağ omuz eklemi
-  pr(bx+p*3,by-p*1,p*2,p*3,gold);
-  pr(bx+p*5,by,p,p*2,dkGold);
-  pr(bx+p*5,by-p*1,p*2,p*2,gold);
-  pr(bx+p*7,by,p*2,p*2,grey);
-
-  // ── Alt bacaklar (referanstaki küçük bacaklar) ──
-  X.strokeStyle=grey;X.lineWidth=Math.ceil(p*.8);
-  // Sol alt
-  X.beginPath();X.moveTo(bx-p*3,by+p*4);X.lineTo(bx-p*5,by+p*7);X.stroke();
-  X.beginPath();X.moveTo(bx-p*5,by+p*7);X.lineTo(bx-p*7,by+p*8);X.stroke();
-  // Sağ alt
-  X.beginPath();X.moveTo(bx+p*3,by+p*4);X.lineTo(bx+p*5,by+p*7);X.stroke();
-  X.beginPath();X.moveTo(bx+p*5,by+p*7);X.lineTo(bx+p*7,by+p*8);X.stroke();
-  // Bacak uçları
-  pr(bx-p*8,by+p*7.5,p*2,p*.6,grey);
-  pr(bx+p*6,by+p*7.5,p*2,p*.6,grey);
-
+  // ── Karın reaktörü ──
+  X.shadowColor='#f80';X.shadowBlur=18;
+  pr(bx-p*2,by-p,p*4,p*4,ft4<2?'#f80':'#ff4400');
+  pr(bx-p,by,p*2,p*2,ft4<2?'#ff0':'#fff');
   X.shadowBlur=0;
 }
 
@@ -1138,7 +1100,7 @@ function drawOmegaBoss(bx,by,cfg,fl,ft4,p){
 }
 
 function drawBossSprite(bx,by,cfg,scale){
-  var p=PX()*0.75*(scale||1);
+  var p=PX()*0.85*(scale||1); // büyüklük küçültüldü
   var col=(cfg.col||'#f80');
   var design=(cfg.design||'dragon');
   var fl=Math.floor(Date.now()/80)%2;
@@ -1544,39 +1506,36 @@ function drawWebBullet(b){
 }
 
 function drawNemesisBullet(b){
-  // Sarı-turuncu biyolojik enerji topu — Nemesis'in silah stiline uygun
   var p=PX();
   var t=Date.now();
-  var ft=Math.floor(t/55)%4;
-  var rot=t*0.008;
-  X.save();X.translate(Math.floor(b.x),Math.floor(b.y));
-
-  // Dış parlayan halo
-  X.shadowColor='#ff8800';X.shadowBlur=14;
-  X.fillStyle='rgba(255,140,0,0.18)';
-  X.beginPath();X.arc(0,0,p*3.5,0,Math.PI*2);X.fill();
-
-  // Dış dönen zırh segmentleri (sarı, karakterin gövde halkalarına benzer)
+  var rot=t*0.012; // sürekli döner
+  var ft=Math.floor(t/60)%4;
+  X.save();
+  X.translate(Math.floor(b.x),Math.floor(b.y));
+  X.shadowBlur=14;X.shadowColor='#ff0';
+  // Dış dönen yıldız kolları (4 adet, pixel art)
   X.save();X.rotate(rot);
-  for(var i=0;i<6;i++){
-    var a=i*(Math.PI/3);
-    var rx=Math.cos(a)*p*2.5,ry=Math.sin(a)*p*2.5;
-    X.fillStyle=ft===i%4?'#ffd040':'#e8a000';
-    X.fillRect(rx-Math.ceil(p*.5),ry-Math.ceil(p*.5),p,p);
+  for(var arm=0;arm<4;arm++){
+    X.save();X.rotate(arm*Math.PI/2);
+    pr(-Math.ceil(p/2),-p*3,p,p*2,ft===arm?'#fff':'#ff0');
+    pr(-Math.ceil(p/2),-p*5,p,p,ft===arm?'#ffff88':'#ff4');
+    X.restore();
   }
   X.restore();
-
-  // İç turuncu çekirdek
-  X.shadowColor='#ff6600';X.shadowBlur=10;
-  X.fillStyle='#cc4400';
-  X.beginPath();X.arc(0,0,p*1.8,0,Math.PI*2);X.fill();
-  X.fillStyle=ft<2?'#ff8800':'#ffaa00';
-  X.beginPath();X.arc(0,0,p*1.2,0,Math.PI*2);X.fill();
-  // Merkez parlak nokta
-  X.fillStyle=ft%2===0?'#fff':'#ffff88';
-  X.beginPath();X.arc(-p*.3,-p*.3,p*.5,0,Math.PI*2);X.fill();
-
-  X.shadowBlur=0;X.restore();
+  // İç dönen (ters yön)
+  X.save();X.rotate(-rot*0.7);
+  for(var arm=0;arm<4;arm++){
+    X.save();X.rotate(arm*Math.PI/2+Math.PI/4);
+    pr(-Math.ceil(p/2),-p*2,p,p,ft===arm?'#ff4':'#aa6600');
+    X.restore();
+  }
+  X.restore();
+  // Merkez çekirdek (titreyen)
+  X.shadowColor='#ff0';X.shadowBlur=18;
+  pr(-p,-p,p*2,p*2,ft%2===0?'#ff0':'#fff');
+  pr(-Math.ceil(p/2),-Math.ceil(p/2),p,p,'#fff');
+  X.shadowBlur=0;
+  X.restore();
 }
 
 function drawOmegaBullet(b){
@@ -1880,9 +1839,8 @@ function update(){
     launchT--;
     var prog=1-(launchT/420);
     var ease=1-Math.pow(1-Math.min(1,prog*1.2),3);
-    // Yıldızlar zaten yukarıda hareket etti, sadece ekstra hız ekle
-    for(var i=0;i<stars.length;i++){var s=stars[i];s.y+=s.sp*ease*8;if(s.y>H())s.y=0;}
-    for(var i=0;i<planets.length;i++){var pl=planets[i];pl.y+=pl.sp*ease*5;if(pl.y>H()+pl.r*2){pl.y=-pl.r*2;pl.x=Math.random()*W();}}
+    for(var i=0;i<stars.length;i++){var s=stars[i];s.y+=s.sp*(1+ease*8);if(s.y>H())s.y=0;s.tw=(s.tw+1)%60;}
+    for(var i=0;i<planets.length;i++){var pl=planets[i];pl.y+=pl.sp*(1+ease*5);if(pl.y>H()+pl.r*2){pl.y=-pl.r*2;pl.x=Math.random()*W();}}
     if(launchT<=0){P.x=W()/2;P.y=H()-60;phase='idle';}
     return;
   }
@@ -2493,13 +2451,18 @@ function draw(){
 }
 
 // ── LOOP ──────────────────────────────────────────────────────────
-function loop(){update();draw();requestAnimationFrame(loop);}
+var _rafId=null;
+function loop(){_rafId=requestAnimationFrame(loop);update();draw();}
 function go(){
   if(state==='start'){state='play';phase='launch';launchT=420;startMusic();}
   else if(state==='dead'){resetAll();state='play';}
 }
-requestAnimationFrame(loop);
+// Sekme gizlenince loop'u durdur, geri gelince devam ettir
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden){if(_rafId){cancelAnimationFrame(_rafId);_rafId=null;}}
+  else{if(!_rafId)loop();}
+});
+loop();
 </script>
 </body>
 </html>
-
