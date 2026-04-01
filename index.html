@@ -13,11 +13,11 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html{background:#000;height:100%;}
-body{background:#000;display:flex;flex-direction:column;align-items:center;width:100vw;height:100vh;height:100dvh;font-family:'Courier New',monospace;overflow:hidden;touch-action:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);}
-#ui{color:#0ff;font-size:12px;display:flex;justify-content:space-between;align-items:center;width:100%;max-width:480px;padding:3px 10px;flex-shrink:0;height:28px;}
+body{background:#000;display:flex;flex-direction:column;align-items:center;width:100vw;height:100vh;height:100dvh;font-family:'Courier New',monospace;overflow:hidden;touch-action:none;}
+#ui{color:#0ff;font-size:12px;display:flex;justify-content:space-between;align-items:center;width:100%;max-width:480px;padding:3px 10px;flex-shrink:0;padding-top:max(3px,env(safe-area-inset-top));}
 #pauseBtn{background:rgba(0,255,255,.1);border:1px solid rgba(0,255,255,.3);border-radius:4px;color:#0ff;font-size:11px;padding:2px 6px;cursor:pointer;user-select:none;}
-canvas{display:block;touch-action:none;image-rendering:pixelated;flex-shrink:0;}
-#controls{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:480px;padding:2px 12px 4px;flex-shrink:0;height:112px;}
+canvas{display:block;touch-action:none;image-rendering:pixelated;flex:1;width:100%;max-width:480px;}
+#controls{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:480px;padding:4px 14px;padding-bottom:max(8px,env(safe-area-inset-bottom));flex-shrink:0;}
 #jWrap{position:relative;width:96px;height:96px;}
 #jBase{width:96px;height:96px;border-radius:50%;background:rgba(0,255,255,.07);border:2px solid rgba(0,255,255,.2);position:absolute;}
 #jKnob{width:38px;height:38px;border-radius:50%;background:rgba(0,255,255,.28);border:2px solid #0ff;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
@@ -64,12 +64,15 @@ function ca(hex,a){
 var C=document.getElementById('c'),X=C.getContext('2d');
 X.imageSmoothingEnabled=false;
 function resize(){
-  var uH=28,cH=112;
-  var safeBot=parseInt(getComputedStyle(document.body).paddingBottom)||0;
-  var av=window.innerHeight-uH-cH-safeBot;
   var mw=Math.min(window.innerWidth,480);
-  C.width=Math.floor(mw);
-  C.height=Math.max(180,Math.floor(av));
+  var uEl=document.getElementById('ui');
+  var cEl=document.getElementById('controls');
+  // Önce canvas'ı sıfırla ki offsetHeight doğru ölçülsün
+  C.style.height='0px';
+  var uH=uEl.offsetHeight||28;
+  var cH=cEl.offsetHeight||108;
+  var av=Math.max(180,window.innerHeight-uH-cH);
+  C.width=Math.floor(mw);C.height=Math.floor(av);
   C.style.width=C.width+'px';C.style.height=C.height+'px';
 }
 resize();
@@ -453,12 +456,12 @@ var WAVE_DEFS=[
   {boss:true},
 ];
 
-// Düşman türleri — ateş hızları ve mermi hızları azaltıldı (daha oynanabilir)
+// Düşman türleri
 var ETYPES={
-  A:{col:'#4af',hp:2, pts:10,brate:190,bspd:1.3,mv:'side'},
-  B:{col:'#f55',hp:4, pts:20,brate:170,bspd:1.5,mv:'side'},
-  C:{col:'#b0f',hp:3, pts:15,brate:180,bspd:1.4,mv:'zigzag'},
-  D:{col:'#ff0',hp:3, pts:18,brate:160,bspd:1.6,mv:'dive'},
+  A:{col:'#4af',hp:2, pts:10,brate:160,bspd:1.6,mv:'side'},
+  B:{col:'#f55',hp:4, pts:20,brate:140,bspd:1.8,mv:'side'},
+  C:{col:'#b0f',hp:3, pts:15,brate:150,bspd:1.7,mv:'zigzag'},
+  D:{col:'#ff0',hp:3, pts:18,brate:130,bspd:2.0,mv:'dive'},
 };
 
 var BOSSES=[
@@ -1924,12 +1927,12 @@ function update(){
   for(var i=0;i<eBullets.length;i++){eBullets[i].x+=eBullets[i].vx;eBullets[i].y+=eBullets[i].vy;}
   bullets=bullets.filter(function(b){return b.y>-15;});
   eBullets=eBullets.filter(function(b){return b.y<H()+2&&b.x>-30&&b.x<W()+30;});
-  var spd2=.20+wave*.010;
+  var spd2=.35+wave*.015;
   for(var i=0;i<enemies.length;i++){
     var e=enemies[i];e.ang=(e.ang||0)+.05;
     // Düşmanı her zaman ekran içinde tut — sınır klamplama
     if(!e.entering){e.x=Math.max(e.w/2+2,Math.min(W()-e.w/2-2,e.x));}
-    if(e.entering){var ddx=e.tx-e.x,ddy=e.ty-e.y,dst=Math.sqrt(ddx*ddx+ddy*ddy);if(dst<2.5){e.entering=false;e.x=e.tx;e.y=e.ty;}else{e.x+=ddx/dst*4.5;e.y+=ddy/dst*4.5;}}
+    if(e.entering){var ddx=e.tx-e.x,ddy=e.ty-e.y,dst=Math.sqrt(ddx*ddx+ddy*ddy);if(dst<2.5){e.entering=false;e.x=e.tx;e.y=e.ty;}else{e.x+=ddx/dst*6;e.y+=ddy/dst*6;}}
     else{
       if(e.mv==='side'){e.x+=e.dx*spd2;if(e.x>W()-e.w/2||e.x<e.w/2){e.dx*=-1;e.y+=4;}}
       if(e.mv==='zigzag'){
