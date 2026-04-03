@@ -66,17 +66,19 @@ X.imageSmoothingEnabled=false;
 function resize(){
   var mw=Math.min(window.innerWidth,480);
   var uH=document.getElementById('ui').offsetHeight||28;
-  var cH=108; // fixed controls height
+  var cH=108;
   var av=Math.max(180,window.innerHeight-uH-cH);
   C.width=Math.floor(mw);C.height=Math.floor(av);
   C.style.width=C.width+'px';C.style.height=C.height+'px';
+  // Canvas resize context'i sıfırlar — her seferinde tekrar set et
+  X.imageSmoothingEnabled=false;
 }
 resize();
 window.addEventListener('resize',function(){resize();initStars();});
 function W(){return C.width;}
 function H(){return C.height;}
 function PX(){return Math.max(2,Math.floor(W()/80));}
-function pr(x,y,w,h,col){X.fillStyle=col;X.fillRect(Math.floor(x),Math.floor(y),w,h);}
+function pr(x,y,w,h,col){X.fillStyle=col;X.fillRect(Math.floor(x),Math.floor(y),Math.ceil(w),Math.ceil(h));}
 
 // ── AUDIO ──────────────────────────────────────────────────────
 var _ac=null,bgGain=null,bgOn=false,musicOn=true;
@@ -2031,6 +2033,7 @@ function update(){
 // ── DRAW ──────────────────────────────────────────────────────────
 function draw(){
   var cw=W(),ch=H();
+  X.imageSmoothingEnabled=false;
   X.fillStyle='#000';X.fillRect(0,0,cw,ch);
   if(state==='start'){
     X.fillStyle='#000';X.fillRect(0,0,cw,ch);
@@ -2465,4 +2468,3 @@ loop();
 </script>
 </body>
 </html>
-
