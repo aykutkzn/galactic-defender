@@ -17,22 +17,22 @@ body{background:#000;display:flex;flex-direction:column;align-items:center;width
 #ui{color:#0ff;font-size:12px;display:flex;justify-content:space-between;align-items:center;width:100%;max-width:480px;padding:3px 10px;flex-shrink:0;padding-top:max(3px,env(safe-area-inset-top));}
 #pauseBtn{background:rgba(0,255,255,.1);border:1px solid rgba(0,255,255,.3);border-radius:4px;color:#0ff;font-size:11px;padding:2px 6px;cursor:pointer;user-select:none;}
 canvas{display:block;touch-action:none;image-rendering:pixelated;flex:1;width:100%;max-width:480px;}
-#controls{position:fixed;bottom:max(90px,env(safe-area-inset-bottom));left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 14px;max-width:480px;margin:0 auto;}
-#jWrap{position:relative;width:96px;height:96px;}
-#jBase{width:96px;height:96px;border-radius:50%;background:rgba(0,255,255,.07);border:2px solid rgba(0,255,255,.2);position:absolute;}
-#jKnob{width:38px;height:38px;border-radius:50%;background:rgba(0,255,255,.28);border:2px solid #0ff;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
-#rightSide{display:flex;flex-direction:row;align-items:center;gap:6px;}
-#abilities{display:flex;flex-direction:column;gap:5px;align-items:center;}
-.aBtn{border-radius:50%;font-size:16px;cursor:pointer;user-select:none;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid;transition:opacity 0.2s;width:46px;height:46px;}
-.aBtn span{font-size:6px;margin-top:1px;font-family:'Courier New',monospace;letter-spacing:-0.5px;}
+#controls{position:fixed;bottom:max(100px,env(safe-area-inset-bottom));left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 14px;max-width:480px;margin:0 auto;}
+#jWrap{position:relative;width:112px;height:112px;}
+#jBase{width:112px;height:112px;border-radius:50%;background:rgba(0,255,255,.07);border:2px solid rgba(0,255,255,.2);position:absolute;}
+#jKnob{width:44px;height:44px;border-radius:50%;background:rgba(0,255,255,.28);border:2px solid #0ff;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+#rightSide{display:flex;flex-direction:row;align-items:center;gap:8px;}
+#abilities{display:flex;flex-direction:column;gap:6px;align-items:center;}
+.aBtn{border-radius:50%;font-size:20px;cursor:pointer;user-select:none;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid;transition:opacity 0.2s;width:56px;height:56px;}
+.aBtn span{font-size:7px;margin-top:1px;font-family:'Courier New',monospace;letter-spacing:-0.5px;}
 #shieldBtn{background:rgba(0,255,255,.15);border-color:#0ff;color:#0ff;}
 #shieldBtn:active{background:rgba(0,255,255,.45);}
 #rocketBtn{background:rgba(255,150,0,.15);border-color:#f90;color:#f90;}
 #rocketBtn:active{background:rgba(255,150,0,.45);}
 .aBtn.cooling{opacity:0.4;}
 #activePups{display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;}
-.pupIcon{font-size:18px;line-height:1;text-shadow:0 0 8px currentColor;}
-#fireBtn{width:68px;height:68px;border-radius:50%;background:rgba(255,50,50,.2);border:2px solid #f55;color:#f55;font-size:22px;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:center;}
+.pupIcon{font-size:20px;line-height:1;text-shadow:0 0 8px currentColor;}
+#fireBtn{width:82px;height:82px;border-radius:50%;background:rgba(255,50,50,.2);border:2px solid #f55;color:#f55;font-size:28px;cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:center;}
 #fireBtn:active{background:rgba(255,50,50,.45);}
 </style>
 </head>
@@ -269,93 +269,67 @@ function drawAstronaut(a){
   X.save();
   X.translate(Math.floor(a.x),Math.floor(a.y));
   X.rotate(a.rot);
-  X.globalAlpha=0.55+0.10*Math.sin(a.tw/25);
-  var lit=Math.sin(a.tw/20);
+  X.globalAlpha=0.45+0.08*Math.sin(a.tw/22);
 
-  // Kıyafet rengi
-  var white='#e0e0e0';
-  var white2='#c8c8c8';
-  var dark='#1a1a2e';
-  var red='#f03060';
-  var blue='#4060d0';
-  var vizorC='#1a1060';
+  var W1='#d8d8e8',W2='#b0b0c0',DK='#22223a',RED='#dd2244',BLU='#2244cc',VIZ='#0a0828';
 
-  // ── Bacaklar ──
-  pr(-p*2,p*6,p*2,p*3,white);   // sol bacak
-  pr(0,p*6,p*2,p*3,white2);     // sağ bacak
-  // Kırmızı kemer çizgisi (bacak arası)
-  pr(-p*2,p*7.5,p*4,Math.ceil(p*0.5),red);
   // Ayaklar
-  pr(-p*3,p*8.5,p*3,p,white2);
-  pr(0,p*8.5,p*3,p,white2);
+  pr(-p*2,p*8,p*2,p,W2); pr(0,p*8,p*2,p,W2);
+  // Bacaklar
+  pr(-p*2,p*5,p*2,p*3,W1); pr(0,p*5,p*2,p*3,W1);
+  pr(-p*2,p*7,p*4,p,RED); // şerit
+  // Gövde
+  pr(-p*3,p*1,p*6,p*4,W1);
+  pr(-p*3,p*4,p*6,p,RED);
+  pr(-p*3,p*1.5,p*6,p,RED);
+  // Göğüs panel
+  pr(-p,p*2,p*2,p*2,W2);
+  pr(-p*0.8,p*2.2,p*0.7,p*0.7,BLU);
+  pr(p*0.1,p*2.2,p*0.7,p*0.7,RED);
+  // Kollar
+  pr(-p*5,p*1,p*2,p*3,W1); pr(-p*5.5,p*3.5,p*2.5,p,W2);
+  pr(p*3,p*1,p*2,p*3,W1);  pr(p*3,p*3.5,p*2.5,p,W2);
+  // Sırt tüpü
+  pr(p*2.5,p*0,p,p*3,'#aaa'); pr(p*2.5,p*2,p,p,'#777');
+  // Kask
+  pr(-p*3,p*-4,p*6,p*5,W1);
+  pr(-p*3.5,p*-2,p*7,p*3,W1);
+  pr(-p*3,p*-5,p*6,p,W1);
+  pr(-p*3.5,p*0.5,p*7,p,RED);
+  pr(-p*3.5,p*-2,p*7,p,RED);
+  // Vizör
+  pr(-p*2,p*-3.5,p*4,p*4.5,VIZ);
+  pr(-p*1.5,p*-3,p*3,p*3,'#12106a');
+  pr(-p*1.8,p*-3.2,p,p*1.5,'rgba(160,140,255,0.4)');
+  pr(-p*1.5,p*-3.5,p*0.6,p*0.6,'rgba(255,255,255,0.3)');
+  // Kask ışığı
+  X.fillStyle='rgba(0,180,220,'+(0.3+0.28*Math.sin(a.tw/14))+')';
+  X.fillRect(-Math.floor(p*3.5),Math.floor(p*-1),Math.ceil(p*0.7),Math.ceil(p*0.7));
 
-  // ── Gövde ──
-  pr(-p*3,p*2,p*6,p*4,white);
-  // Kırmızı gövde şeritleri
-  pr(-p*3,p*4,p*6,Math.ceil(p*0.6),red);
-  pr(-p*3,p*2.5,p*6,Math.ceil(p*0.5),red);
-  // Göğüs paneli (renkli düğmeler)
-  pr(-p*1.5,p*2.5,p*3,p*2,white2);
-  pr(-p*1.2,p*2.8,p,Math.ceil(p*0.8),blue);   // mavi düğme
-  pr(p*0.2,p*2.8,p,Math.ceil(p*0.8),red);      // kırmızı düğme
-
-  // ── Kollar ──
-  // Sol kol (serbest)
-  pr(-p*5,p*2,p*2,p*2.5,white);
-  pr(-p*6,p*3.5,p*2,p*2,white2);
-  // Sol el (yumruk, balon tutmuyor)
-  pr(-p*6.5,p*5,p*2.5,p*2,white);
-  // Sağ kol (balonu tutuyor)
-  pr(p*3,p*2,p*2,p*2.5,white);
-  pr(p*3.5,p*3.5,p*2,p*2,white2);
-  // Sağ el
-  pr(p*3,p*5,p*2.5,p*2,white);
-
-  // ── Kafa (kask) ──
-  pr(-p*3,p*-4,p*6,p*6,white);   // kask dış
-  pr(-p*3.5,p*-2.5,p*7,p*4,white); // kask yanlara genişler
-  pr(-p*3,p*-5,p*6,p,white);     // kask üstü
-  // Kask kırmızı şeritler
-  pr(-p*3.5,p*0.5,p*7,Math.ceil(p*0.6),red);
-  pr(-p*3.5,p*-2.5,p*7,Math.ceil(p*0.5),red);
-  // Vizör (büyük oval, koyu)
-  pr(-p*2,p*-3.5,p*4,p*5,vizorC);
-  // Vizör iç renk (eflatun menekşe)
-  pr(-p*1.5,p*-3,p*3,p*4,'#2a1866');
-  // Vizör parlaması
-  pr(-p*1.8,p*-3.2,p*1.2,p*1.5,'rgba(200,180,255,0.4)');
-  pr(-p,p*-3.5,p*0.6,p,'rgba(255,255,255,0.3)');
-  // Kask yan detaylar
-  pr(-p*3.5,p*-1.5,p,p*2,'rgba(255,255,255,0.2)');
-
-  // ── Balon (sağ elde, ipe bağlı) ──
-  var bpx=p*3.5;  // balon x offset
-  var bpy=-p*12;  // balon y offset (yukarıda)
+  // Balon — canvas clip ile düzgün daire
+  var bpx=Math.floor(p*4),bpy=Math.floor(-p*10),bR=Math.floor(p*3);
   // İp
-  X.strokeStyle='rgba(200,200,200,0.6)';X.lineWidth=Math.max(1,Math.ceil(p*0.3));
-  X.beginPath();X.moveTo(p*4,p*5);X.bezierCurveTo(p*5,p*0,p*5,-p*4,bpx,-p*10);X.stroke();
-  // Balon gövdesi (gezegenli — turuncu-sarı çizgili)
-  var bR=p*3;
-  X.shadowColor='#f80';X.shadowBlur=p*2;
-  // Balon katmanları (çizgili gezegen efekti)
-  var bCols=['#f84000','#f86000','#f8a000','#f8c000','#f8e000','#f8a000','#f84000'];
-  for(var bi=0;bi<bCols.length;bi++){
-    pr(bpx-bR+bi*Math.ceil(bR/3),bpy-bR,Math.ceil(bR/3)+1,bR*2,bCols[bi]);
-  }
-  // Balon daire kırpması efekti (köşe kapatma)
-  X.fillStyle=dark;
-  X.beginPath();X.arc(bpx,bpy,bR+p*0.5,0,Math.PI*2);X.stroke();
-  X.shadowBlur=0;
-  X.strokeStyle='rgba(0,0,0,0.5)';X.lineWidth=Math.max(1,p);
-  X.beginPath();X.arc(bpx,bpy,bR,0,Math.PI*2);X.stroke();
-  // Balon parlaması
-  X.fillStyle='rgba(255,220,150,0.35)';
-  X.beginPath();X.arc(bpx-bR*0.3,bpy-bR*0.3,bR*0.4,0,Math.PI*2);X.fill();
-  // Balon ip bağlantısı
-  pr(bpx-Math.ceil(p*0.4),bpy+bR-p,Math.ceil(p*0.8),p,'#c00');
-
-  X.shadowBlur=0;X.globalAlpha=1;
+  X.strokeStyle='rgba(210,210,210,0.55)';X.lineWidth=Math.max(1,Math.ceil(p*0.25));
+  X.beginPath();X.moveTo(Math.floor(p*3.5),Math.floor(p*3.5));
+  X.bezierCurveTo(Math.floor(p*5),0,Math.floor(p*5),Math.floor(-p*5),bpx,bpy+bR);
+  X.stroke();
+  // Balon gövdesi (clip ile)
+  X.save();
+  X.beginPath();X.arc(bpx,bpy,bR,0,Math.PI*2);X.clip();
+  var bCols=['#bb3300','#cc5500','#dd7700','#ee9900','#ffbb22','#ee9900','#dd7700','#cc5500'];
+  var sw=Math.ceil(bR*2/bCols.length);
+  for(var bi=0;bi<bCols.length;bi++)pr(bpx-bR+bi*sw,bpy-bR,sw+1,bR*2,bCols[bi]);
+  // Parlaklık
+  X.fillStyle='rgba(255,220,130,0.28)';
+  X.beginPath();X.arc(bpx-bR*0.3,bpy-bR*0.3,bR*0.42,0,Math.PI*2);X.fill();
   X.restore();
+  // Balon kenar
+  X.strokeStyle='rgba(0,0,0,0.5)';X.lineWidth=Math.max(1,Math.ceil(p*0.5));
+  X.beginPath();X.arc(bpx,bpy,bR,0,Math.PI*2);X.stroke();
+  // İp bağlantısı
+  pr(bpx-Math.ceil(p*0.4),bpy+bR-p,Math.ceil(p*0.8),p,'#880000');
+
+  X.globalAlpha=1;X.restore();
 }
 
 function updateAstronauts(){
