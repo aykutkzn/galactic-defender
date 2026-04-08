@@ -206,23 +206,26 @@ function handleCanvasTap(cx,cy){
   var r=C.getBoundingClientRect(),x=(cx-r.left)*(W()/r.width),y=(cy-r.top)*(H()/r.height);
   if(state==='start'){
     var bs=Math.floor(W()/32),lh=bs*2.1,by=H()*.34+lh*6.3+lh*1.2;
-    if(x>W()/2-65&&x<W()/2+65&&y>by&&y<by+28)toggleMusic();
+    // Müzik butonu
+    if(x>W()/2-65&&x<W()/2+65&&y>by&&y<by+28){toggleMusic();return;}
+    // Gemi seç
     var shipY2=by+28+lh*0.6+lh*0.8;
     var cols=['red','blue','green'];
+    var shipHit=false;
     for(var i=0;i<3;i++){
       var sx=W()/4*(i+1);
-      if(Math.abs(x-sx)<28&&Math.abs(y-shipY2)<30){shipColor=cols[i];}
+      if(Math.abs(x-sx)<36&&Math.abs(y-shipY2)<40){shipColor=cols[i];shipHit=true;}
     }
+    // Gemi seç veya müzik butonuna basmadıysa oyunu başlat
+    if(!shipHit){go();}
+    return;
   }
   if(state==='dead'){
     resetAll();state='play';
   }
   if(state==='win'){
     var menuDelay2=WIN_LINES[WIN_LINES.length-1].delay+80;
-    if(winTimer>menuDelay2){
-      var bw2=Math.floor(W()*0.55),bh2=PX()*6,bx2=W()/2-bw2/2,by2b=H()*0.93-bh2;
-      if(x>bx2&&x<bx2+bw2&&y>by2b&&y<by2b+bh2){resetAll();state='start';}
-    }
+    if(winTimer>menuDelay2){resetAll();state='start';}
   }
 }
 var paused=false,PB=document.getElementById('pauseBtn');
