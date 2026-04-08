@@ -228,6 +228,8 @@ function handleCanvasTap(cx,cy){
 var paused=false,PB=document.getElementById('pauseBtn');
 PB.addEventListener('click',function(){if(state==='play'){paused=!paused;PB.textContent=paused?'▶':'⏸';}});
 PB.addEventListener('touchstart',function(e){e.preventDefault();if(state==='play'){paused=!paused;PB.textContent=paused?'▶':'⏸';}},{passive:false});
+var _ctrlEl=document.getElementById('controls');
+function showControls(v){_ctrlEl.style.visibility=v?'visible':'hidden';}
 
 // ── STARS ──────────────────────────────────────────────────────
 var stars=[],planets=[],astronauts=[];
@@ -636,9 +638,9 @@ function drawPlayerBullet(b){
 
 // ── ENEMIES ──────────────────────────────────────────────────────
 function drawEnemySprite(e){
-  // Koordinatları kesin integer yap — bulanıklığı önler
   var p=PX(),x=Math.floor(e.x),y=Math.floor(e.y),c=e.col,fl=Math.floor(Date.now()/160)%2;
-  X.shadowBlur=0; // Her sprite öncesi sıfırla
+  X.save();
+  X.shadowBlur=0;X.globalAlpha=1;
   if(e.type==='A'){
     pr(x-p*3,y+p,p*6,p*2,c);pr(x-p*4,y+p*2,p*8,p,c);
     pr(x-p*2,y-p,p*4,p*2,'#aef');pr(x-p,y-p*2,p*2,p,'#dff');
@@ -682,13 +684,11 @@ function drawEnemySprite(e){
     pr(x+p,y-p*6,p,p*2,c1);
     // Yüz iç panel (koyu)
     pr(x-p*2,y-p*3,p*4,p*4,c3);
-    // Gözler — büyük ve oval
-    X.shadowColor=glow;X.shadowBlur=8;
-    pr(x-p*2,y-p*2,p*2,p*2,c2);   // sol göz dış
-    pr(x+p,y-p*2,p*2,p*2,c2);     // sağ göz dış
+    // Gözler — shadowBlur YOK (bulanıklık yapar)
+    pr(x-p*2,y-p*2,p*2,p*2,c2);
+    pr(x+p,y-p*2,p*2,p*2,c2);
     pr(x-p*2+Math.ceil(p*0.3),y-p*2+Math.ceil(p*0.3),Math.ceil(p*1.4),Math.ceil(p*1.4),fl?'#fff':glow);
     pr(x+p+Math.ceil(p*0.3),y-p*2+Math.ceil(p*0.3),Math.ceil(p*1.4),Math.ceil(p*1.4),fl?glow:'#fff');
-    X.shadowBlur=0;
     // Ağız
     pr(x-p,y,p,Math.ceil(p*0.5),c2);
     // Alt dişler (3 tane)
@@ -720,6 +720,7 @@ function drawEnemySprite(e){
     X.fillStyle=e.hp/e.maxHp>.5?'#0f0':'#f80';
     X.fillRect(x-14,y-e.h/2-6,28*(e.hp/e.maxHp),3);
   }
+  X.restore();
 }
 
 // ── BOSS SPRITES — Uzaylı temalı retro pixel art ─────────────────
@@ -2010,6 +2011,8 @@ function update(){
 function draw(){
   var cw=W(),ch=H();
   X.imageSmoothingEnabled=false;
+  // Kontrolleri sadece oyun sırasında göster
+  showControls(state==='play'&&phase!=='bossIntro'&&phase!=='omegaScene'&&phase!=='launch');
   X.fillStyle='#000';X.fillRect(0,0,cw,ch);
   if(state==='start'){
     X.fillStyle='#000';X.fillRect(0,0,cw,ch);
