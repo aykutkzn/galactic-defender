@@ -221,7 +221,8 @@ function handleCanvasTap(cx,cy){
     return;
   }
   if(state==='dead'){
-    resetAll();state='play';
+    if(y<H()*0.89){resetAll();state='play';}
+    else{resetAll();state='start';}
   }
   if(state==='win'){
     var menuDelay2=WIN_LINES[WIN_LINES.length-1].delay+80;
@@ -645,31 +646,29 @@ function drawEnemySprite(e){
   var fl=Math.floor(Date.now()/200)%2;
 
   if(e.type==='A'){
-    // Mavi yengeç invader
-    pr(x-p*4,y-p*2,p*8,p*3,'#4af'); // gövde
-    pr(x-p*3,y-p*4,p*6,p*2,'#4af'); // üst kafa
-    pr(x-p*2,y-p*5,p,p*2,'#4af');   // sol anten
-    pr(x+p,y-p*5,p,p*2,'#4af');     // sağ anten
-    pr(x-p*5,y-p*3,p*2,p*3,'#4af'); // sol kol
-    pr(x+p*3,y-p*3,p*2,p*3,'#4af'); // sağ kol
-    pr(x-p*6,y-p*2,p*2,p,'#4af');   // sol kıskaç üst
-    pr(x-p*6,y-p,p,p,'#4af');       // sol kıskaç alt
-    pr(x+p*4,y-p*2,p*2,p,'#4af');   // sağ kıskaç üst
-    pr(x+p*5,y-p,p,p,'#4af');       // sağ kıskaç alt
-    // Karın
-    pr(x-p*3,y+p,p*6,p,'#2277aa');
-    // Gözler
-    pr(x-p*2,y-p*3,p*2,p*2,'#001a33');
-    pr(x+p,y-p*3,p*2,p*2,'#001a33');
-    pr(x-p*2,y-p*3,p,p,fl?'#0ff':'#fff');
-    pr(x+p,y-p*3,p,p,fl?'#fff':'#0ff');
-    // Bacaklar — animasyonlu
+    // Mavi yengeç invader — küçük boyut
+    var q=Math.max(1,p-1); // bir adım küçük
+    pr(x-q*3,y-q*2,q*6,q*3,'#4af');
+    pr(x-q*2,y-q*4,q*4,q*2,'#4af');
+    pr(x-q*2,y-q*5,q,q*2,'#4af');
+    pr(x+q,y-q*5,q,q*2,'#4af');
+    pr(x-q*4,y-q*3,q*2,q*3,'#4af');
+    pr(x+q*2,y-q*3,q*2,q*3,'#4af');
+    pr(x-q*5,y-q*2,q*2,q,'#4af');
+    pr(x-q*5,y-q,q,q,'#4af');
+    pr(x+q*3,y-q*2,q*2,q,'#4af');
+    pr(x+q*4,y-q,q,q,'#4af');
+    pr(x-q*2,y,q*4,q,'#2277aa');
+    pr(x-q*2,y-q*3,q*2,q*2,'#001a33');
+    pr(x+q,y-q*3,q*2,q*2,'#001a33');
+    pr(x-q*2,y-q*3,q,q,fl?'#0ff':'#fff');
+    pr(x+q,y-q*3,q,q,fl?'#fff':'#0ff');
     if(fl){
-      pr(x-p*3,y+p,p,p*2,'#4af');pr(x-p,y+p,p,p*2,'#4af');
-      pr(x+p,y+p,p,p*2,'#4af');  pr(x+p*3,y+p,p,p*2,'#4af');
+      pr(x-q*2,y,q,q*2,'#4af');pr(x,y,q,q*2,'#4af');
+      pr(x+q,y,q,q*2,'#4af');pr(x+q*2,y,q,q*2,'#4af');
     }else{
-      pr(x-p*3,y+p*2,p,p,'#4af');pr(x-p,y+p*2,p,p,'#4af');
-      pr(x+p,y+p*2,p,p,'#4af');  pr(x+p*3,y+p*2,p,p,'#4af');
+      pr(x-q*2,y+q,q,q,'#4af');pr(x,y+q,q,q,'#4af');
+      pr(x+q,y+q,q,q,'#4af');pr(x+q*2,y+q,q,q,'#4af');
     }
 
   }else if(e.type==='B'){
@@ -2184,11 +2183,16 @@ function draw(){
       X.fillStyle='#888';X.font=Math.floor(cw/34)+'px Courier New';
       X.fillText('EN YÜKSEK: '+highScore.toLocaleString(),cw/2,ch*0.75);
     }
-    // Yanıp sönen devam mesajı
+    // Yanıp sönen tekrar butonu
     var blink2=Math.floor(Date.now()/600)%2===0;
     X.fillStyle=blink2?'#0ff':'#446';X.font='bold '+Math.floor(cw/26)+'px Courier New';
     X.shadowBlur=blink2?8:0;X.shadowColor='#0ff';
-    X.fillText('[ EKRANA DOKUN ]',cw/2,ch*0.87);X.shadowBlur=0;
+    X.fillText('[ TEKRAR ]',cw/2,ch*0.83);X.shadowBlur=0;
+    // Ana menü butonu
+    var blink3=Math.floor(Date.now()/600+1)%2===0;
+    X.fillStyle=blink3?'#f0f':'#404';X.font='bold '+Math.floor(cw/30)+'px Courier New';
+    X.shadowBlur=blink3?6:0;X.shadowColor='#f0f';
+    X.fillText('[ ANA MENÜ ]',cw/2,ch*0.93);X.shadowBlur=0;
     drawCRT();return;
   }
   if(state==='win'){drawWinScreen();return;}
@@ -2499,3 +2503,4 @@ loop();
 </script>
 </body>
 </html>
+
