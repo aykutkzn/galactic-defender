@@ -2085,7 +2085,7 @@ function draw(){
 // ── LOOP — Delta Time ile 60fps normalize ─────────────────────────
 // DT: her frame'de kaç "60fps tick" geçti — 60fps'te 1.0, 30fps'te 2.0
 // Tüm hareket değerleri DT ile çarpılır → refresh rate bağımsız hız
-var DT=1;
+var DT=3;
 var _lastTS=0;
 function loop(ts){
   if(_lastTS===0)_lastTS=ts;
