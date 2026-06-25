@@ -2489,9 +2489,14 @@ function draw(){
 }
 
 // ── LOOP ──────────────────────────────────────────────────────────
-var _rafId=null;
-function loop(){_rafId=requestAnimationFrame(loop);update();draw();}
-function go(){
+var _LT=0,DT=1;
+function loop(ts){
+  if(_LT){DT=Math.max(0.5,Math.min(2.5,(ts-_LT)/16.667));}
+  _LT=ts;
+  update();draw();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
   if(state==='start'){state='play';phase='launch';launchT=420;startMusic();}
   else if(state==='dead'){resetAll();state='play';}
 }
