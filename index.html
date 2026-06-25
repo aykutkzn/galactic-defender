@@ -2490,11 +2490,34 @@ function draw(){
 
 // ── LOOP ──────────────────────────────────────────────────────────
 
-var _rafId=null;
-function loop(){_rafId=requestAnimationFrame(loop);update();draw();}
-function go(){
-  if(state==='start'){state='play';phase='launch';launchT=420;startMusic();}
-  else if(state==='dead'){resetAll();state='play';}
+var _LT = 0;
+var DT = 1;
+
+function loop(ts) {
+    if (_LT) {
+        DT = Math.max(0.5, Math.min(2.5, (ts - _LT) / 16.667));
+    }
+    _LT = ts;
+
+    update(DT);
+    draw();
+
+    requestAnimationFrame(loop);
+}
+
+function update(DT) {
+    // Tüm hareket/hız kodlarını DT ile çarpın: (örn: nesne.x += hiz * DT)
+}
+
+function draw() {
+    
+}
+
+requestAnimationFrame(loop);
+  
+if(state==='start'){state='play';phase='launch';launchT=420;startMusic();}
+ 
+else if(state==='dead'){resetAll();state='play';}
 }
 // Sekme gizlenince loop'u durdur, geri gelince devam ettir
 document.addEventListener('visibilitychange',function(){
