@@ -758,7 +758,7 @@ function update(){
   if(K.u)P.y=Math.max(P.h/2,P.y-sp);if(K.d)P.y=Math.min(H()-P.h/2,P.y+sp);
 
   if(K.f&&sCool<=0){
-    var bSpeedBase=6;var bSpeedBonus=Math.min(4,combo*0.35);var bVY=-(bSpeedBase+bSpeedBonus);
+    var bSpeedBase=11;var bSpeedBonus=Math.min(4,combo*0.35);var bVY=-(bSpeedBase+bSpeedBonus);
     if(rocketReady){fireRocket();sCool=10;}
     else if(xTimer>0){for(var i=-1;i<=1;i++)bullets.push({x:P.x,y:P.y-P.h/2,vx:i*0.7,vy:bVY});}
     else bullets.push({x:P.x,y:P.y-P.h/2,vx:0,vy:bVY});
@@ -777,7 +777,7 @@ function update(){
   eBullets=eBullets.filter(function(b){return b.y<H()+2&&b.x>-30&&b.x<W()+30;});
 
   // ── DÜŞMANLAR ───────────────────────────────────────────────
-  var spd2=(0.4+wave*0.018)*DT;var maxY=H()*0.72;
+  var spd2=(1.2+wave*0.05)*DT;var maxY=H()*0.72;
   for(var i=0;i<enemies.length;i++){
     var e=enemies[i];
     if(e.entering){
