@@ -2084,21 +2084,20 @@ function draw(){
 
   
 var DT=1;
-var _lastTS=0;
-function loop(ts){
-  if(_lastTS===0)_lastTS=ts;
-  var raw=(ts-_lastTS)/16.667; // 16.667ms = 1 frame @ 60fps
-  _lastTS=ts;
-  // DT'yi sınırla: 0.5–2.5 arası (sekme arka plana geçince spike olmasın)
-  DT=Math.max(0.5,Math.min(1.5,raw));
-  update();draw();
-  requestAnimationFrame(loop);
-  
+var _rafId=null;
+
+function loop(){
+  _rafId=requestAnimationFrame(loop);
+  update();
+  draw();
+}
+
 function go(){
   if(state==='start'){state='play';phase='launch';launchT=420;if(musicOn)startMusic();}
   else if(state==='dead'){resetAll();state='play';if(musicOn)startMusic();}
 }
-requestAnimationFrame(loop);
+
+loop();
 </script>
 </body>
 </html>
