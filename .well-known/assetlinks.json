@@ -1,8 +1,8 @@
 [{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "com.aykutkzn.galacticdefender",
-    "sha256_cert_fingerprints": ["27:C8:18:24:76:2F:D1:56:18:3E:26:CC:6E:96:EC:73:4E:80:00:BE:5A:F9:F0:3D:35:15:F6:36:9D:88:CD:4F"]
-  }
-}]
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.aykutkzn.galacticdefender",
+        "sha256_cert_fingerprints": ["18:46:22:22:E4:AE:5B:73:9A:43:68:2E:81:76:B4:1C:26:5C:AF:52:43:6D:78:03:EB:29:3F:88:89:95:C4:E3"]
+      }
+    }]
