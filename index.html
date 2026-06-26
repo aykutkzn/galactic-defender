@@ -805,7 +805,7 @@ function update(){
   // ── BOSS ────────────────────────────────────────────────────
   if(boss&&boss.entering){boss.y+=1.2*DT;if(boss.y>=82)boss.entering=false;return;}
   if(boss){
-    var bSpd=(0.5+Math.floor(wave/5)*0.12)*DT;boss.x+=bDir*bSpd;
+    var bSpd=(1.5+Math.floor(wave/5)*0.3)*DT;boss.x+=bDir*bSpd;
     if(boss.x>W()-boss.w/2||boss.x<boss.w/2)bDir*=-1;
     if(boss.pattern==='omega'){bossShootOmega();}else{bossShoot();}updateLaser();
     for(var i=bullets.length-1;i>=0;i--){var b=bullets[i];if(Math.abs(b.x-boss.x)<boss.w/2&&Math.abs(b.y-boss.y)<boss.h/2){boss.hp--;bullets.splice(i,1);burst(b.x,b.y,boss.col,4);if(boss.hp<=0){var pts=1800+wave*200;score+=pts;killBoss(pts);}}}
