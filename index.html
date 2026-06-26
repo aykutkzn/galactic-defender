@@ -284,7 +284,7 @@ var phase='idle',phTimer=0,cdN=0;
 var introActive=false,introT=0,introCfg=null;
 var winTimer=0,winParts=[];
 var P={};
-function resetP(){P={x:W()/2,y:H()-60,w:30,h:32,spd:3.5,inv:0,shld:0};lives=Math.min(3,lives);}
+function resetP(){P={x:W()/2,y:H()-60,w:30,h:32,spd:2.5,inv:0,shld:0}
 resetP();
 var bullets=[],eBullets=[],enemies=[],parts=[],pups=[],floats=[];
 var boss=null,bDir=1,sCool=0,rTimer=0,xTimer=0,rocketReady=0,rockets=[];
@@ -753,7 +753,7 @@ function update(){
   if(warpT>0){warpT-=DT;for(var i=0;i<stars.length;i++)stars[i].sp=20;return;}
 
   // ── OYUNCU HAREKETİ ────────────────────────────────────────
-  var sp=P.spd*(W()/300)*DT*3.5;
+  var sp=P.spd*(W()/300)*DT*2.5;
   if(K.l)P.x=Math.max(P.w/2,P.x-sp);if(K.r)P.x=Math.min(W()-P.w/2,P.x+sp);
   if(K.u)P.y=Math.max(P.h/2,P.y-sp);if(K.d)P.y=Math.min(H()-P.h/2,P.y+sp);
 
