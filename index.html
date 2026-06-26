@@ -753,7 +753,7 @@ function update(){
   if(warpT>0){warpT-=DT;for(var i=0;i<stars.length;i++)stars[i].sp=20;return;}
 
   // ── OYUNCU HAREKETİ ────────────────────────────────────────
-  var sp=P.spd*(W()/120)*DT;
+  var sp=P.spd*(W()/200)*DT;
   if(K.l)P.x=Math.max(P.w/2,P.x-sp);if(K.r)P.x=Math.min(W()-P.w/2,P.x+sp);
   if(K.u)P.y=Math.max(P.h/2,P.y-sp);if(K.d)P.y=Math.min(H()-P.h/2,P.y+sp);
 
